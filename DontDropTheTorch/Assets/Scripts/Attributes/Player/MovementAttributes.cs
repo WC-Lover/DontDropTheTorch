@@ -19,7 +19,7 @@ public class MovementAttributes
         MoveSpeed = 3f;
         BoostSpeedMultiplier = 1.5f;
         BoostStaminaCost = 1.5f;
-        DashSpeedMultiplier = 30f;
+        DashSpeedMultiplier = 5f;
         DashStaminaCost = 30f;
         DashCooldown = 2.5f;
         DashDuration = 0.25f;

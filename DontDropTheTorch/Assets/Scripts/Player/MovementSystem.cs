@@ -7,13 +7,13 @@ public class MovementSystem : NetworkBehaviour
 {
 
     private Camera mainCam;
-
     private Rigidbody2D rigidBody;
+
     private Vector2 mousePosition;
     private Vector2 moveDirection;
 
     // Create stamina bar
-    private float stamina;
+    [SerializeField] private float stamina;
     private float staminaRegenCooldown;
 
     private float dashDuration;
@@ -32,11 +32,6 @@ public class MovementSystem : NetworkBehaviour
 
         dashDuration = attributes.DashDuration;
         dashCooldown = attributes.DashCooldown;
-    }
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
 
         rigidBody = GetComponent<Rigidbody2D>();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
@@ -50,7 +45,7 @@ public class MovementSystem : NetworkBehaviour
 
         mousePosition = mainCam.ScreenToWorldPoint(Input.mousePosition);
 
-        #region Movement Direction
+        #region Move Direction
 
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveY = Input.GetAxisRaw("Vertical");
@@ -118,7 +113,7 @@ public class MovementSystem : NetworkBehaviour
 
         #region Dash
 
-        if (Input.GetKey(KeyCode.LeftControl) && attributes.DashCooldown <= 0)
+        if (Input.GetKey(KeyCode.LeftControl) && dashCooldown <= 0)
         {
             isDashing = true;
             stamina -= attributes.DashStaminaCost;

@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class HealthSystem : MonoBehaviour
 {
-    private PlayerAttributes playerAttributes;
+    private HealthAttributes attributes;
 
-    public void SetAttributes(PlayerAttributes attributes)
+    public void SetAttributes(PlayerAttributes playerAttributes)
     {
-        playerAttributes = attributes;
+        attributes = playerAttributes.HealthAttributes;
     }
 
     // Start is called before the first frame update

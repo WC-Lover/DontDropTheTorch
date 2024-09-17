@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System;
 
 public class TestUIManager : MonoBehaviour
 {
@@ -13,14 +14,27 @@ public class TestUIManager : MonoBehaviour
 
     void OnGUI()
     {
-        if (lobbyManager.InLobby || networkManager.IsClient || networkManager.IsHost) return;
+        if (networkManager.IsClient || networkManager.IsHost) return;
 
         GUILayout.BeginArea(new Rect(10, 10, 300, 300));
-        LobbyUI();
+        if (lobbyManager.InLobby)
+        {
+            LobbyUI();
+        }
+        else
+        {
+            GameUI();
+        }
+
         GUILayout.EndArea();
     }
 
     void LobbyUI()
+    {
+        if (GUILayout.Button("Create Lobby")) lobbyManager.CreateLobbyAsync();
+    }
+
+    void GameUI()
     {
         if (GUILayout.Button("Create Lobby")) lobbyManager.CreateLobbyAsync();
         if (GUILayout.Button("Connect to Lobby")) lobbyManager.QuickJoinLobbyAsync();

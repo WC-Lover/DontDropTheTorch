@@ -137,7 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3309368704
+  GlobalObjectIdHash: 2699210315
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -189,6 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0cda194630ec8347b745896e5dab7d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weapon: {fileID: 9205042694252013593}
 --- !u!114 &5304299100463246674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,6 +202,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d29b20396056524fb71f7726df33321, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerLight: {fileID: 5332027681737702109}
+  prefabToSpawn: {fileID: 1584714125443164622, guid: ee207cb4bd573c848b2c02111aebf4db, type: 3}
+  spawnCooldown: 0
+  waveSpawnCooldown: 0
+  spawnFrequencyInSeconds: 2
+  waveSpawnFrequencyInSeconds: 5
+  spaceToSpawnEnemy: {x: 2, y: 2}
+  enemyControllers: []
+  despawnAllEnemies: 0
+  disableEnemySpawn: 0
 --- !u!114 &-2277411319796855587
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,20 +236,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c5f8b1ebb30cc84aa423641c5a9b646, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 3
-  staminaRegenCooldown: 1
-  staminaRegenRate: 1
-  staminaRegenAmount: 2
-  maxStamina: 100
   stamina: 100
-  dashStaminaCost: 30
-  dashSpeed: 20
-  dashDuration: 0.25
-  dashDurationTime: 0.25
-  dashCooldown: 1
-  dashRefreshTime: 1
-  boostStaminaCost: 2
-  boostSpeed: 1.75
 --- !u!50 &8421177882919249236
 Rigidbody2D:
   serializedVersion: 4
@@ -358,6 +356,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3597414261505039565}
   - component: {fileID: 8562653538388948005}
+  - component: {fileID: 1918059077177130143}
   m_Layer: 0
   m_Name: Weapon
   m_TagString: Untagged
@@ -420,7 +419,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -432,3 +431,16 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1918059077177130143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9205042694252013593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b89240198997b9449b08eb2de0d656c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shotTrailPistol: {fileID: 3835427821086149401, guid: d5942d886a23b48419262f363c96f76f, type: 3}

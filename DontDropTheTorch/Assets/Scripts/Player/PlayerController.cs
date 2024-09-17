@@ -8,6 +8,9 @@ public class PlayerController : NetworkBehaviour
     PlayerAttributes playerAttributes;
     HealthSystem healthSystem;
     MovementSystem movementSystem;
+    WeaponSystem weaponSystem;
+    EnemySpawnSystem enemySpawnSystem;
+    [SerializeField] GameObject weapon;
 
     public override void OnNetworkSpawn()
     {
@@ -20,5 +23,11 @@ public class PlayerController : NetworkBehaviour
 
         movementSystem = GetComponent<MovementSystem>();
         movementSystem.SetAttributes(playerAttributes);
+
+        weaponSystem = weapon.GetComponent<WeaponSystem>();
+        weaponSystem.SetAttributes(playerAttributes);
+
+        enemySpawnSystem = GetComponent<EnemySpawnSystem>();
+        enemySpawnSystem.SetAttributes(playerAttributes);
     }
 }

@@ -9,6 +9,7 @@ using UnityEngine;
 public class LobbyManager : MonoBehaviour
 {
     private Lobby CurrentLobby;
+    public static int playersExpected = 0;
 
     public bool InLobby { get => CurrentLobby != null; }
 
@@ -81,6 +82,7 @@ public class LobbyManager : MonoBehaviour
         await LobbyService.Instance.RemovePlayerAsync(CurrentLobby.Id, playerId);
         CurrentLobby = null;
     }
+
     private void OnLobbyChanged(ILobbyChanges obj)
     {
         obj.ApplyToLobby(CurrentLobby);
