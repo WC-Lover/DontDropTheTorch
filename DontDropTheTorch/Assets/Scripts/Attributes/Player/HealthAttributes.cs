@@ -1,7 +1,7 @@
 public class HealthAttributes
 {
     public float HealthAmount { get; set; }
-    public float HealthRegenerationAmount { get; set; }
+    public float HealthRegenerationPercent { get; set; }
     public float HealthRegenerationCooldown { get; set; }
     public float FearAmount { get; set; }
     public float FearIncrease { get; set; }
@@ -12,7 +12,7 @@ public class HealthAttributes
     public HealthAttributes()
     {
         HealthAmount = 100;
-        HealthRegenerationAmount = 0;
+        HealthRegenerationPercent = 1;
         HealthRegenerationCooldown = 10;
         FearAmount = 0;
         FearIncrease = 1f;

@@ -10,6 +10,7 @@ public class PlayerController : NetworkBehaviour
     MovementSystem movementSystem;
     WeaponSystem weaponSystem;
     EnemySpawnSystem enemySpawnSystem;
+    TradingSystem tradingSystem;
     [SerializeField] GameObject weapon;
 
     public override void OnNetworkSpawn()
@@ -29,5 +30,10 @@ public class PlayerController : NetworkBehaviour
 
         enemySpawnSystem = GetComponent<EnemySpawnSystem>();
         enemySpawnSystem.SetAttributes(playerAttributes);
+
+        tradingSystem = GetComponent<TradingSystem>();
+        tradingSystem.SetAttributes(playerAttributes);
+
+        CameraFollowPlayer.PlayerToFollowTransform = transform;
     }
 }

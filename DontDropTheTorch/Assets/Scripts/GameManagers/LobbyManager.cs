@@ -9,7 +9,6 @@ using UnityEngine;
 public class LobbyManager : MonoBehaviour
 {
     private Lobby CurrentLobby;
-    public static int playersExpected = 0;
 
     public bool InLobby { get => CurrentLobby != null; }
 

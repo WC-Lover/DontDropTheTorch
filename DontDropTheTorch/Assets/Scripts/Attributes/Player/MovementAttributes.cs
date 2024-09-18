@@ -17,7 +17,7 @@ public class MovementAttributes
         StaminaRegenerationAmount = 2f;
         StaminaRegenerationCooldown = 5f;
         MoveSpeed = 3f;
-        BoostSpeedMultiplier = 1.5f;
+        BoostSpeedMultiplier = 1.75f;
         BoostStaminaCost = 1.5f;
         DashSpeedMultiplier = 5f;
         DashStaminaCost = 30f;

@@ -4,6 +4,7 @@ public class PlayerAttributes
     public WeaponAttributes WeaponAttributes;
     public MovementAttributes MovementAttributes;
     public EnemySpawnAttributes EnemySpawnAttributes;
+    public TradingAttributes TradingAttributes;
 
     public PlayerAttributes()
     {
@@ -11,5 +12,6 @@ public class PlayerAttributes
         WeaponAttributes = new WeaponAttributes();
         MovementAttributes = new MovementAttributes();
         EnemySpawnAttributes = new EnemySpawnAttributes();
+        TradingAttributes = new TradingAttributes();
     }
 }

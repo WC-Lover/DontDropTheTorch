@@ -16,6 +16,7 @@ public class EnemySpawnSystem : NetworkBehaviour
     [SerializeField] private float spawnCooldown;
     [SerializeField] private float waveSpawnCooldown;
 
+    public List<Transform> otherPlayers = new List<Transform>();
     public List<Transform> players = new List<Transform>();
 
     // Local player properties
@@ -37,10 +38,14 @@ public class EnemySpawnSystem : NetworkBehaviour
         if (!IsOwner)
         {
             // Hope this happens later than Instance created :)
+            Instance.otherPlayers.Add(transform);
             Instance.players.Add(transform);
             return;
         }
+
         Instance = this;
+        
+        players.Add(transform);
 
         spawnCooldown = enemySpawnAttributes.SpawnCooldown;
         waveSpawnCooldown = enemySpawnAttributes.WaveSpawnCooldown;
@@ -91,9 +96,9 @@ public class EnemySpawnSystem : NetworkBehaviour
 
         #region Find Nearby Players and Remove according Zones
 
-        for (int i = 0; i < players.Count; i++)
+        for (int i = 0; i < otherPlayers.Count; i++)
         {
-            Vector3 playerPosition = players[i].position;
+            Vector3 playerPosition = otherPlayers[i].position;
             // Define direction and distance from LocalPlayer to NearbyPlayer
             Vector2 directionFromLocalPlayerToOther = playerPosition - localPlayerPosition;
 
@@ -136,7 +141,7 @@ public class EnemySpawnSystem : NetworkBehaviour
                 else directionY = 1;
 
                 // Define which Direction is Focused by Nearby Player
-                float nearPlayerEulerAngleZ = players[i].eulerAngles.z;
+                float nearPlayerEulerAngleZ = otherPlayers[i].eulerAngles.z;
 
                 // Right-Top corner
                 if (nearPlayerEulerAngleZ >= 0 && nearPlayerEulerAngleZ < 90
@@ -226,6 +231,7 @@ public class EnemySpawnSystem : NetworkBehaviour
         objectToSpawn.position = spawnPos;
         Instance.enemyControllers.Add(objectToSpawn.GetComponent<EnemyController>());
         objectToSpawn.GetComponent<NetworkObject>().Spawn();
+        objectToSpawn.GetComponent<EnemyController>().players = players;
     }
 
     private List<Vector3> GetPlayerFreeSpawnZones()
