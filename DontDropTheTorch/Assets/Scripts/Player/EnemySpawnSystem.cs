@@ -16,8 +16,7 @@ public class EnemySpawnSystem : NetworkBehaviour
     [SerializeField] private float spawnCooldown;
     [SerializeField] private float waveSpawnCooldown;
 
-    public List<Transform> otherPlayers = new List<Transform>();
-    public List<Transform> players = new List<Transform>();
+    public List<Transform> otherPlayers;
 
     // Local player properties
     private float playerLightBeamDistance;
@@ -28,27 +27,20 @@ public class EnemySpawnSystem : NetworkBehaviour
     public bool despawnAllEnemies;
     public bool disableEnemySpawn;
 
-    internal void SetAttributes(PlayerAttributes playerAttributes)
+    public void SetAttributes(PlayerAttributes playerAttributes)
     {
         enemySpawnAttributes = playerAttributes.EnemySpawnAttributes;
+
+        spawnCooldown = enemySpawnAttributes.SpawnCooldown;
+        waveSpawnCooldown = enemySpawnAttributes.WaveSpawnCooldown;
     }
 
     public override void OnNetworkSpawn()
     {
-        if (!IsOwner)
-        {
-            // Hope this happens later than Instance created :)
-            Instance.otherPlayers.Add(transform);
-            Instance.players.Add(transform);
-            return;
-        }
-
+        if (!IsOwner) return;
         Instance = this;
-        
-        players.Add(transform);
 
-        spawnCooldown = enemySpawnAttributes.SpawnCooldown;
-        waveSpawnCooldown = enemySpawnAttributes.WaveSpawnCooldown;
+        otherPlayers = LobbyManager.LobbyPlayersTransforms;
 
         enemyControllers = new List<EnemyController>();
         // currently 4 -> distance from player to corner where spawn is sqrt(4^2 + 4^2) = 5.65(roughly)
@@ -64,7 +56,7 @@ public class EnemySpawnSystem : NetworkBehaviour
 
         #region Despawn Enemies if Trading has Started
 
-            if (IsServer && despawnAllEnemies && enemyControllers.Count > 0)
+        if (IsServer && despawnAllEnemies && enemyControllers.Count > 0)
         {
             foreach (EnemyController ec in enemyControllers.ToArray()) ec.DespawnEnemy();
             enemyControllers.Clear();
@@ -200,7 +192,7 @@ public class EnemySpawnSystem : NetworkBehaviour
         #region Spawn Enemies in free zones
 
         //var tradingZoneStartX = TradingController.Instance.TradingZoneStartX;
-        for (int i = 0; i < freeZoneList.Count / 4; i++) // TODO: Remove /4, done to spawn only 1 zombie per player
+        for (int i = 0; i < freeZoneList.Count; i++) // TODO: Remove /4, done to spawn only 1 zombie per player
         {
             Vector2 freeZone = freeZoneList[i];
             Vector3 freeZoneVector3 = new Vector3(freeZone.x, freeZone.y, 0);
@@ -231,7 +223,6 @@ public class EnemySpawnSystem : NetworkBehaviour
         objectToSpawn.position = spawnPos;
         Instance.enemyControllers.Add(objectToSpawn.GetComponent<EnemyController>());
         objectToSpawn.GetComponent<NetworkObject>().Spawn();
-        objectToSpawn.GetComponent<EnemyController>().players = players;
     }
 
     private List<Vector3> GetPlayerFreeSpawnZones()

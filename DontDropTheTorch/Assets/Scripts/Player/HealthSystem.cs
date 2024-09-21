@@ -39,7 +39,6 @@ public class HealthSystem : NetworkBehaviour
     {
         PlayerIsDamaged(damage, direction, pushStrengthMultiplier);
         PlayerIsDamagedRpc(damage, direction, pushStrengthMultiplier);
-        
 
         if (health <= 0)
         {

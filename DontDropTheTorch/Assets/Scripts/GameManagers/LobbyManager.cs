@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
+using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
@@ -8,21 +10,51 @@ using UnityEngine;
 
 public class LobbyManager : MonoBehaviour
 {
+    private NetworkManager networkManager;
     private Lobby CurrentLobby;
 
+    private bool InGame;
     public bool InLobby { get => CurrentLobby != null; }
+    public bool IsLobbyLeader { get; internal set; }
+    //public bool IsLobbyFull { get => CurrentLobby.MaxPlayers == CurrentLobby.Players.Count; }
+    public string LobbyCode { get; internal set; }
+
+    public static List<Transform> LobbyPlayersTransformsInludingLocal;
+
+    public static List<Transform> LobbyPlayersTransforms;
+
+    [SerializeField] private TMP_InputField lobbyCodeInput;
+    [SerializeField] private TMP_InputField maxPlayersInput;
+
+    void Update()
+    {
+        if (InGame) return;
+        if (InLobby && CurrentLobby.AvailableSlots == 0)
+        {
+            if (IsLobbyLeader) NetworkManager.Singleton.StartHost();
+            else NetworkManager.Singleton.StartClient();
+            InGame = true;
+        }
+    }
 
     public async void CreateLobbyAsync()
     {
+        if (maxPlayersInput.text.Length == 0) return;
         try
         {
-            CurrentLobby = await LobbyService.Instance.CreateLobbyAsync("TestLobby", 4);
+            CurrentLobby = await LobbyService.Instance.CreateLobbyAsync("TestLobby", int.Parse(maxPlayersInput.text));
+            LobbyPlayersTransformsInludingLocal = new List<Transform>(CurrentLobby.MaxPlayers);
+            LobbyPlayersTransforms = new List<Transform>(CurrentLobby.MaxPlayers - 1);
 
             var callbacks = new LobbyEventCallbacks();
             callbacks.LobbyChanged += OnLobbyChanged;
             try
             {
                 var m_LobbyEvents = await Lobbies.Instance.SubscribeToLobbyEventsAsync(CurrentLobby.Id, callbacks);
+                IsLobbyLeader = true;
+                LobbyCode = CurrentLobby.LobbyCode;
+                lobbyCodeInput.gameObject.SetActive(false);
+                maxPlayersInput.gameObject.SetActive(false);
                 HeartBeatLoop();
             }
             catch (LobbyServiceException ex)
@@ -42,18 +74,22 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    public async void QuickJoinLobbyAsync()
+    public async void ConnectToLobbyAsync()
     {
         try
         {
-            CurrentLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
+            CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCodeInput.text);
+            LobbyPlayersTransformsInludingLocal = new List<Transform>(CurrentLobby.MaxPlayers);
+            LobbyPlayersTransforms = new List<Transform>(CurrentLobby.MaxPlayers - 1);
 
             var callbacks = new LobbyEventCallbacks();
             callbacks.LobbyChanged += OnLobbyChanged;
             try
             {
                 var m_LobbyEvents = await Lobbies.Instance.SubscribeToLobbyEventsAsync(CurrentLobby.Id, callbacks);
-                HeartBeatLoop();
+                IsLobbyLeader = false;
+                lobbyCodeInput.gameObject.SetActive(false);
+                maxPlayersInput.gameObject.SetActive(false);
             }
             catch (LobbyServiceException ex)
             {
@@ -91,17 +127,9 @@ public class LobbyManager : MonoBehaviour
     {
         while (CurrentLobby != null)
         {
-            await SendHeartbeatPingAsync();
+            await LobbyService.Instance.SendHeartbeatPingAsync(CurrentLobby.Id);//SendHeartbeatPingAsync();
             await Task.Delay(8000);
         }
-    }
-
-    async Task SendHeartbeatPingAsync()
-    {
-        if (!InLobby)
-            return;
-
-        await LobbyService.Instance.SendHeartbeatPingAsync(CurrentLobby.Id);
     }
 
 }

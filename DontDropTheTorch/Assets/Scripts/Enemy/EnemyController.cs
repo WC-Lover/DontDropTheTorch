@@ -37,7 +37,7 @@ public class EnemyController : NetworkBehaviour
         {
             attackCooldown = attributes.AttackCooldown;
             var direction = collision.collider.transform.position - transform.position;
-            Debug.Log(direction);
+
             if (healthSystem.TakeDamage(attributes.Damage, direction, attributes.AttackPushMultiplier))
             {
                 // Unless player can be revived without trading zone it's fine to remove from list
@@ -51,6 +51,8 @@ public class EnemyController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         networkObject = GetComponent<NetworkObject>();
+
+        players = LobbyManager.LobbyPlayersTransformsInludingLocal;
 
         attributes = new EnemyAttributes();
         spawnAttributes = new EnemySpawnAttributes();
@@ -115,6 +117,7 @@ public class EnemyController : NetworkBehaviour
         return nearestPlayerTransform;
     }
 
+    // Make rpc, no Client can deal damage to Enemy on it's side, only through Host!
     public void DealDamageToEnemyRpc(float damage)
     {
         if (damage >= health)
@@ -132,6 +135,7 @@ public class EnemyController : NetworkBehaviour
 
     public void DespawnEnemy()
     {
+        EnemySpawnSystem.Instance.enemyControllers.Remove(this);
         networkObject.Despawn();
     }
 }

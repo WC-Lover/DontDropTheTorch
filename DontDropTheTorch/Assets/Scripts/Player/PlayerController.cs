@@ -15,9 +15,18 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        base.OnNetworkSpawn();
-
         playerAttributes = new PlayerAttributes();
+
+        if (IsOwner)
+        {
+            CameraFollowPlayer.PlayerToFollowTransform = transform;
+        }
+        else
+        {
+            LobbyManager.LobbyPlayersTransforms.Add(transform);
+        }
+
+        LobbyManager.LobbyPlayersTransformsInludingLocal.Add(transform);
 
         healthSystem = GetComponent<HealthSystem>();
         healthSystem.SetAttributes(playerAttributes);
@@ -34,6 +43,5 @@ public class PlayerController : NetworkBehaviour
         tradingSystem = GetComponent<TradingSystem>();
         tradingSystem.SetAttributes(playerAttributes);
 
-        CameraFollowPlayer.PlayerToFollowTransform = transform;
     }
 }

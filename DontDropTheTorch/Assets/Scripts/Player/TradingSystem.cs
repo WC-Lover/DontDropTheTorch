@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 public class TradingSystem : NetworkBehaviour
 {
 
-    TradingSystem Instance;
+    public static TradingSystem Instance;
     HealthSystem healthSystem;
 
     [SerializeField] private GameObject traderPrefab;
@@ -34,8 +34,8 @@ public class TradingSystem : NetworkBehaviour
     {
         this.playerAttributes = playerAttributes;
 
-        traderSpawnTime = this.playerAttributes.TradingAttributes.TraderSpawnTime;
-        tradingTime = this.playerAttributes.TradingAttributes.TradingTime;
+        traderSpawnTime = playerAttributes.TradingAttributes.TraderSpawnTime;
+        tradingTime = playerAttributes.TradingAttributes.TradingTime;
 
         isTrading = false;
         isInsideTradingZone = false;
@@ -49,7 +49,7 @@ public class TradingSystem : NetworkBehaviour
     {
         if (!IsOwner) return;
         Instance = this;
-        otherPlayers = EnemySpawnSystem.Instance.otherPlayers;
+        otherPlayers = LobbyManager.LobbyPlayersTransforms;
         healthSystem = GetComponent<HealthSystem>();
     }
 
@@ -91,12 +91,12 @@ public class TradingSystem : NetworkBehaviour
 
             if (IsServer && !isTrading && playersInsideTradingZone == otherPlayers.Count + 1) // +1 for local player
             {
-                ReviveDeadPlayers();
+                //ReviveDeadPlayers();
                 StartTrading();
                 StartTradingRpc();
             }
 
-            if (isTrading)
+            if (IsServer && isTrading)
             {
                 tradingTime -= Time.deltaTime;
                 if (tradingTime <= 0)
@@ -123,6 +123,8 @@ public class TradingSystem : NetworkBehaviour
         Instance.isTraderSpawned = false;
         Instance.isInsideTradingZone = false;
         Instance.playersInsideTradingZone = 0;
+        EnemySpawnSystem.Instance.despawnAllEnemies = false;
+        EnemySpawnSystem.Instance.disableEnemySpawn = false;
         if (IsServer) traderNetworkObject.Despawn();
     }
 
@@ -136,6 +138,8 @@ public class TradingSystem : NetworkBehaviour
     {
         Instance.isTrading = true;
         Instance.tradingTime = playerAttributes.TradingAttributes.TradingTime;
+        EnemySpawnSystem.Instance.despawnAllEnemies = true;
+        EnemySpawnSystem.Instance.disableEnemySpawn = true;
 
         Instance.dmgPercent = Random.Range(10, 20) / 100f;
         Instance.healthPercent = Random.Range(2, 5) / 100f;
@@ -157,7 +161,7 @@ public class TradingSystem : NetworkBehaviour
     [Rpc(SendTo.Server)]
     private void PlayerHasEnteredTradingZoneRpc()
     {
-        playersInsideTradingZone++;
+        Instance.playersInsideTradingZone++;
     }
 
     private bool HasPlayerEnteredTradingZone()
@@ -193,15 +197,15 @@ public class TradingSystem : NetworkBehaviour
         if (IsServer)
         {
             GameObject trader = Instantiate(traderPrefab);
-            trader.transform.position = new Vector2(mostRightPlayerX + mostRightPlayerBeamDistance, 0); // change +2 to the length of the light beam
+            trader.transform.position = new Vector2(mostRightPlayerX + mostRightPlayerBeamDistance + 26, 0); // change +2 to the length of the light beam
             traderNetworkObject = trader.GetComponent<NetworkObject>();
             traderNetworkObject.Spawn();
         }
         
-        isTraderSpawned = true;
+        Instance.isTraderSpawned = true;
         // 0.5f is wall width, player needs to be inside zone, not in wall
         // lengthOfTheTradingArea/2 = 5
-        tradingZoneAreaStartX = mostRightPlayerX + mostRightPlayerBeamDistance + 0.5f - 5;
+        Instance.tradingZoneAreaStartX = mostRightPlayerX + mostRightPlayerBeamDistance + 0.5f - 5 + 26;
     }
 
     void OnGUI()

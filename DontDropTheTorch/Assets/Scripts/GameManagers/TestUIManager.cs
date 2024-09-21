@@ -31,16 +31,19 @@ public class TestUIManager : MonoBehaviour
 
     void LobbyUI()
     {
-        if (GUILayout.Button("Create Lobby")) lobbyManager.CreateLobbyAsync();
+        if (lobbyManager.IsLobbyLeader)
+        {
+            if (GUILayout.Button($"{lobbyManager.LobbyCode}")) Debug.Log($"{lobbyManager.LobbyCode}");
+        }
+
+        if (GUILayout.Button("Leave Lobby")) lobbyManager.LeaveLobbyAsync();
     }
 
     void GameUI()
     {
         if (GUILayout.Button("Create Lobby")) lobbyManager.CreateLobbyAsync();
-        if (GUILayout.Button("Connect to Lobby")) lobbyManager.QuickJoinLobbyAsync();
-        if (GUILayout.Button("Leave Lobby")) lobbyManager.LeaveLobbyAsync();
-        if (GUILayout.Button("Host")) GetComponent<NetworkManager>().StartHost();
-        if (GUILayout.Button("Client")) GetComponent<NetworkManager>().StartClient();
+        if (GUILayout.Button("Connect to Lobby")) lobbyManager.ConnectToLobbyAsync();
+        
     }
 
 }
