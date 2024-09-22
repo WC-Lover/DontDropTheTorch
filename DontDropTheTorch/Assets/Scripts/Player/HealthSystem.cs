@@ -10,6 +10,7 @@ public class HealthSystem : NetworkBehaviour
     private float health;
     private Rigidbody2D rigidBody;
     private MovementSystem movementSystem;
+    private EnemySpawnSystem enemySpawnSystem;
     [SerializeField] private float afterAttackEffect;
     public bool IsDead { private set; get; }
 
@@ -24,6 +25,7 @@ public class HealthSystem : NetworkBehaviour
     {
         rigidBody = GetComponent<Rigidbody2D>();
         movementSystem = GetComponent<MovementSystem>();
+        enemySpawnSystem = GetComponent<EnemySpawnSystem>();
     }
 
     private void Update()
@@ -31,7 +33,11 @@ public class HealthSystem : NetworkBehaviour
         if (afterAttackEffect > 0)
         {
             afterAttackEffect -= Time.deltaTime;
-            if (afterAttackEffect < 0) movementSystem.enabled = true; 
+            if (afterAttackEffect < 0)
+            {
+                rigidBody.velocity = Vector2.zero;
+                if (!IsDead) movementSystem.enabled = true; 
+            }
         }
     }
 
@@ -43,10 +49,30 @@ public class HealthSystem : NetworkBehaviour
         if (health <= 0)
         {
             PlayerIsDead();
+            PlayerIsDeadRpc();
             return true;
         }
 
         return false;
+    }
+
+    [Rpc(SendTo.NotServer)]
+    private void PlayerIsDeadRpc()
+    {
+        PlayerIsDead();
+    }
+
+    private void PlayerIsDead()
+    {
+        IsDead = true;
+        if (IsOwner)
+        {
+            transform.position = new Vector3(-1000, -1000, 0);
+            movementSystem.enabled = false;
+            enemySpawnSystem.enabled = false;
+            //gameObject.GetComponentInChildren<WeaponSystem>().enabled = false;
+        }
+        if (IsServer) TradingSystem.Instance.playersAlive--;
     }
 
     [Rpc(SendTo.NotServer)]
@@ -55,26 +81,37 @@ public class HealthSystem : NetworkBehaviour
         PlayerIsDamaged(damage, direction, pushStrengthMultiplier);
     }
 
-    private void PlayerIsDead()
-    {
-        IsDead = true;
-    }
-
     private void PlayerIsDamaged(float damage, Vector2 direction, float pushStrengthMultiplier)
     {
+        health -= damage;
         if (IsOwner)
         {
             movementSystem.enabled = false;
-            afterAttackEffect = 0.25f;
+            afterAttackEffect = 0.5f;
             rigidBody.velocity = pushStrengthMultiplier * direction;
         }
         // Deal damage on all clients to show less HP or smth.
     }
 
-    public void RevivePlayer()
+    [Rpc(SendTo.NotServer)]
+    public void RevivePlayerRpc(float tradingZoneAreaStartX)
     {
-        Debug.Log("revived");
-        gameObject.SetActive(true);
+        RevivePlayer(tradingZoneAreaStartX);
+    }
+
+    public void RevivePlayer(float tradingZoneAreaStartX)
+    {
+        IsDead = false;
+        health = attributes.HealthAmount;
+
+        if (IsOwner)
+        {
+            transform.position = new Vector3(tradingZoneAreaStartX + 5, 0, 0);
+            enemySpawnSystem.enabled = true;
+            movementSystem.enabled = true;
+            //gameObject.GetComponentInChildren<WeaponSystem>().enabled = true;
+        }
+        if (IsServer) RevivePlayerRpc(tradingZoneAreaStartX); 
     }
 
     public void UpdateHealth(float healthDiff)

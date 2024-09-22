@@ -26,7 +26,7 @@ public class EnemyController : NetworkBehaviour
     [SerializeField] AudioClip sfx_Walk;
     [SerializeField] AudioClip sfx_Attack;
 
-    public List<Transform> players;
+    private List<Transform> players;
     private Transform nearestPlayerTransform;
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -52,8 +52,8 @@ public class EnemyController : NetworkBehaviour
     {
         networkObject = GetComponent<NetworkObject>();
 
-        players = LobbyManager.LobbyPlayersTransformsInludingLocal;
-
+        players = new List<Transform>(LobbyManager.LobbyPlayersTransformsInludingLocal);
+        
         attributes = new EnemyAttributes();
         spawnAttributes = new EnemySpawnAttributes();
 

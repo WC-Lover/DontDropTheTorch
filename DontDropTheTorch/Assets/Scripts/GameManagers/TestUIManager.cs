@@ -34,6 +34,7 @@ public class TestUIManager : MonoBehaviour
         if (lobbyManager.IsLobbyLeader)
         {
             if (GUILayout.Button($"{lobbyManager.LobbyCode}")) Debug.Log($"{lobbyManager.LobbyCode}");
+            if (GUILayout.Button($"Start Host solo test")) networkManager.StartHost();
         }
 
         if (GUILayout.Button("Leave Lobby")) lobbyManager.LeaveLobbyAsync();

@@ -192,7 +192,7 @@ public class EnemySpawnSystem : NetworkBehaviour
         #region Spawn Enemies in free zones
 
         //var tradingZoneStartX = TradingController.Instance.TradingZoneStartX;
-        for (int i = 0; i < freeZoneList.Count; i++) // TODO: Remove /4, done to spawn only 1 zombie per player
+        for (int i = 0; i < freeZoneList.Count/4; i++) // TODO: Remove /4, done to spawn only 1 zombie per player
         {
             Vector2 freeZone = freeZoneList[i];
             Vector3 freeZoneVector3 = new Vector3(freeZone.x, freeZone.y, 0);
