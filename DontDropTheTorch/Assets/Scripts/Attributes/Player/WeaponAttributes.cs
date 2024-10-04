@@ -1,6 +1,7 @@
 public class WeaponAttributes
 {
     public float Damage { get; set; }
+    public int RoundAmmo { get; set; }
     public int ProjectileAmount { get; set; }
     public float ProjectileSpreadAngle { get; set; }
     public int Penetration { get; set; }
@@ -13,15 +14,16 @@ public class WeaponAttributes
 
     public WeaponAttributes()
     {
-        Damage = 10f;
-        ProjectileAmount = 1;
-        ProjectileSpreadAngle = 15f;
-        Penetration = 0;
-        Accuracy = 100f;
-        Range = 10f;
-        Crit = 2f;
-        CritChance = 1f;
-        FireRate = 0.25f;
-        ReloadTime = 1f;
+        Damage = PlayerAttributesSettings.Damage;
+        ProjectileAmount = PlayerAttributesSettings.ProjectileAmount;
+        ProjectileSpreadAngle = PlayerAttributesSettings.ProjectileSpreadAngle;
+        Penetration = PlayerAttributesSettings.Penetration;
+        Accuracy = PlayerAttributesSettings.Accuracy;
+        Range = PlayerAttributesSettings.Range;
+        Crit = PlayerAttributesSettings.Crit;
+        CritChance = PlayerAttributesSettings.CritChance;
+        FireRate = PlayerAttributesSettings.FireRate;
+        ReloadTime = PlayerAttributesSettings.ReloadTime;
+        RoundAmmo = PlayerAttributesSettings.RoundAmmo;
     }
 }

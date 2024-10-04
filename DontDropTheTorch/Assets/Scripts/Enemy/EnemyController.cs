@@ -3,15 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.UI;
 
 public class EnemyController : NetworkBehaviour
 {
-    
+
+    private NetworkVariable<float> netHealth = new NetworkVariable<float>();
+
     private NetworkObject networkObject;
 
     private EnemyAttributes attributes;
     private EnemySpawnAttributes spawnAttributes;
 
+    [SerializeField] private Image healthBarImage;
     private float health;
     private float speed;
     private float attackCooldown;
@@ -22,9 +26,7 @@ public class EnemyController : NetworkBehaviour
 
     private Rigidbody2D rigidBody;
 
-    [SerializeField] AudioClip sfx_Spawn;
-    [SerializeField] AudioClip sfx_Walk;
-    [SerializeField] AudioClip sfx_Attack;
+    private EnemySFXController enemySFXController;
 
     private List<Transform> players;
     private Transform nearestPlayerTransform;
@@ -37,6 +39,8 @@ public class EnemyController : NetworkBehaviour
         {
             attackCooldown = attributes.AttackCooldown;
             var direction = collision.collider.transform.position - transform.position;
+
+            enemySFXController.AttackSFX();
 
             if (healthSystem.TakeDamage(attributes.Damage, direction, attributes.AttackPushMultiplier))
             {
@@ -51,6 +55,9 @@ public class EnemyController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         networkObject = GetComponent<NetworkObject>();
+        enemySFXController = GetComponent<EnemySFXController>();
+
+        netHealth.OnValueChanged += HealthChanged;
 
         players = new List<Transform>(LobbyManager.LobbyPlayersTransformsInludingLocal);
         
@@ -58,6 +65,7 @@ public class EnemyController : NetworkBehaviour
         spawnAttributes = new EnemySpawnAttributes();
 
         health = attributes.Health;
+        netHealth.Value = attributes.Health;
         speed = attributes.Speed;
         attackCooldown = attributes.AttackCooldown;
 
@@ -66,6 +74,8 @@ public class EnemyController : NetworkBehaviour
         nearestTargetDead = false;
 
         rigidBody = GetComponent<Rigidbody2D>();
+
+        enemySFXController.SpawnSFX();
     }
 
     void Update()
@@ -95,6 +105,8 @@ public class EnemyController : NetworkBehaviour
 
     private void MoveTowardsNearestPlayer(Vector3 direction)
     {
+        enemySFXController.WalkSFX();
+
         var directionNormalized = direction.normalized;
 
         rigidBody.velocity = directionNormalized * speed;
@@ -118,16 +130,26 @@ public class EnemyController : NetworkBehaviour
     }
 
     // Make rpc, no Client can deal damage to Enemy on it's side, only through Host!
-    public void DealDamageToEnemyRpc(float damage)
+    public void DealDamageToEnemyRpc(float damage, Vector2 rayDirection)
     {
-        if (damage >= health)
+        netHealth.Value -= damage;
+        healthBarImage.fillAmount = Mathf.Clamp(attributes.Health / health, 0, 1);
+    }
+
+    private void HealthChanged(float previousValue, float newValue)
+    {
+        if (!IsServer) return;
+
+        health = newValue;
+
+        if (health <= 0)
         {
             if (IsServer) DespawnEnemy();
             else DespawnEnemyRpc();
         }
     }
 
-   [Rpc(SendTo.Server)]
+    [Rpc(SendTo.Server)]
     private void DespawnEnemyRpc()
     {
         DespawnEnemy();

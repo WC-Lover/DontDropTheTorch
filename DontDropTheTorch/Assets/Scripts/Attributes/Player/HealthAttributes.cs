@@ -11,13 +11,13 @@ public class HealthAttributes
 
     public HealthAttributes()
     {
-        HealthAmount = 100;
-        HealthRegenerationPercent = 1;
-        HealthRegenerationCooldown = 10;
-        FearAmount = 0;
-        FearIncrease = 1f;
-        Calmness = 100f;
-        CalmnessRegenerationAmount = 1f;
-        CalmnessRegenerationCooldown = 5f;
+        HealthAmount = PlayerAttributesSettings.HealthAmount;
+        HealthRegenerationPercent = PlayerAttributesSettings.HealthRegenerationPercent;
+        HealthRegenerationCooldown = PlayerAttributesSettings.HealthRegenerationCooldown;
+        FearAmount = PlayerAttributesSettings.FearAmount;
+        FearIncrease = PlayerAttributesSettings.FearIncrease;
+        Calmness = PlayerAttributesSettings.Calmness;
+        CalmnessRegenerationAmount = PlayerAttributesSettings.CalmnessRegenerationAmount;
+        CalmnessRegenerationCooldown = PlayerAttributesSettings.CalmnessRegenerationCooldown;
     }
 }

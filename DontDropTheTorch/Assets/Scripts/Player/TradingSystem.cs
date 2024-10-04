@@ -29,8 +29,21 @@ public class TradingSystem : NetworkBehaviour
     private List<Transform> otherPlayers;
 
     private float dmgPercent;
+    private float projectileAngleSpreadPercent;
+    private float rangePercent;
+    private float critPercent;
+    private float critChancePercent;
+    private float fireRatePercent;
+    private float reloadTimePercent;
+
     private float healthPercent;
     private float regenPercent;
+    private float healthRegenerationCooldownPercent;
+    private float fearAmountPercent;
+
+    private float staminaPercent;
+    private float staminaRegenPercent;
+    private float moveSpeedPercent;
 
     public void SetAttributes(PlayerAttributes playerAttributes)
     {
@@ -130,6 +143,7 @@ public class TradingSystem : NetworkBehaviour
         Instance.playersInsideTradingZone = 0;
         EnemySpawnSystem.Instance.despawnAllEnemies = false;
         EnemySpawnSystem.Instance.disableEnemySpawn = false;
+        GetComponentInChildren<WeaponSystem>().enabled = true;
         if (IsServer) traderNetworkObject.Despawn();
     }
 
@@ -145,10 +159,26 @@ public class TradingSystem : NetworkBehaviour
         Instance.tradingTime = playerAttributes.TradingAttributes.TradingTime;
         EnemySpawnSystem.Instance.despawnAllEnemies = true;
         EnemySpawnSystem.Instance.disableEnemySpawn = true;
+        GetComponentInChildren<WeaponSystem>().enabled = false;
+
+        #region Damage
 
         Instance.dmgPercent = Random.Range(10, 20) / 100f;
+        Instance.projectileAngleSpreadPercent = Random.Range(10, 20) / 100f;
+        Instance.rangePercent = Random.Range(10, 20) / 100f;
+        Instance.critPercent = Random.Range(10, 20) / 100f;
+        Instance.critChancePercent = Random.Range(10, 20) / 100f;
+        Instance.fireRatePercent = Random.Range(10, 20) / 100f;
+        Instance.reloadTimePercent = Random.Range(10, 20) / 100f;
+
+        #endregion
+
+        #region Health
+
         Instance.healthPercent = Random.Range(2, 5) / 100f;
         Instance.regenPercent = Random.Range(2, 5) / 100f;
+
+        #endregion
     }
 
     private void ReviveDeadPlayers()
@@ -224,30 +254,89 @@ public class TradingSystem : NetworkBehaviour
 
     void OnGUI()
     {
-        if (isTrading) //  && tradingPoints > 0
+        if (IsOwner && isTrading) //  && tradingPoints > 0
         {
-            GUILayout.BeginArea(new Rect(310, 10, 300, 300));
 
             #region Weapon
 
-            if (GUILayout.Button($"DMG + {dmgPercent}%"))
+            GUILayout.BeginArea(new Rect(0, 0, 200, 200));
+
+            GUILayout.TextArea("WEAPON");
+
+            if (GUILayout.Button($"Damage + {dmgPercent}%")) // Uncommon
             {
                 playerAttributes.WeaponAttributes.Damage *= 1 + dmgPercent;
                 dmgPercent = Random.Range(10, 20) / 100f;
                 tradingPoints--;
             }
 
-            //if (GUILayout.Button("Penetration"))
+            if (GUILayout.Button($"Projectile Amount + 1")) // Rare // Can't update if not enough bulets?
+            {
+                playerAttributes.WeaponAttributes.ProjectileAmount++;
+                tradingPoints--;
+            }
+
+            if (GUILayout.Button($"Projectile Angle - {projectileAngleSpreadPercent}%")) // Common
+            {
+                playerAttributes.WeaponAttributes.ProjectileSpreadAngle *= 1 - projectileAngleSpreadPercent;
+                projectileAngleSpreadPercent = Random.Range(10, 20) / 100f;
+                tradingPoints--;
+            }
+
+            if (GUILayout.Button($"Penetration + 1")) // Rare
+            {
+                playerAttributes.WeaponAttributes.Penetration++;
+                tradingPoints--;
+            }
+
+            if (GUILayout.Button($"Range + {rangePercent}%")) // Common
+            {
+                playerAttributes.WeaponAttributes.Range *= 1 + rangePercent;
+                rangePercent = Random.Range(10, 20) / 100f;
+                tradingPoints--;
+            }
+
+            //if (GUILayout.Button($"Crit + {critPercent}%")) // Rare
             //{
-            //    Instance.Penetration += 1;
-            //    GameController.Instance.Score--;
+            //    playerAttributes.WeaponAttributes.Crit *= 1 + critPercent;
+            //    critPercent = Random.Range(10, 20) / 100f;
+            //    tradingPoints--;
             //}
+
+            //if (GUILayout.Button($"Crit chance + {critChancePercent}%")) // Rare
+            //{
+            //    playerAttributes.WeaponAttributes.CritChance *= 1 + critChancePercent;
+            //    critChancePercent = Random.Range(10, 20) / 100f;
+            //    tradingPoints--;
+            //}
+
+            if (GUILayout.Button($"Fire rate + {fireRatePercent}%")) // Uncommon
+            {
+                playerAttributes.WeaponAttributes.FireRate *= 1 - fireRatePercent;
+                fireRatePercent = Random.Range(10, 20) / 100f;
+                tradingPoints--;
+            }
+
+            //if (GUILayout.Button($"Reload time - {reloadTimePercent}%")) // Uncommon
+            //{
+            //    playerAttributes.WeaponAttributes.ReloadTime *= 1 - reloadTimePercent;
+            //    reloadTimePercent = Random.Range(10, 20) / 100f;
+            //    tradingPoints--;
+            //}
+
+            // BulletAmount?
+
+            GUILayout.EndArea();
 
             #endregion
 
             #region Health
 
-            if (GUILayout.Button($"HP + {healthPercent}%"))
+            GUILayout.BeginArea(new Rect(200, 0, 200, 200));
+
+            GUILayout.TextArea("HEALTH");
+
+            if (GUILayout.Button($"Amount + {healthPercent}%")) // Uncommon
             {
                 var healthBeforeUpdate = playerAttributes.HealthAttributes.HealthAmount;
                 playerAttributes.HealthAttributes.HealthAmount *= 1 + healthPercent;
@@ -257,16 +346,73 @@ public class TradingSystem : NetworkBehaviour
                 tradingPoints--;
             }
 
-            if (GUILayout.Button($"HP Regen + {regenPercent}%"))
+            if (GUILayout.Button($"Regen + {regenPercent}%")) // Uncommon
             {
                 playerAttributes.HealthAttributes.HealthRegenerationPercent *= 1 + regenPercent;
                 regenPercent = Random.Range(2, 5) / 100f;
                 tradingPoints--;
             }
 
-            #endregion
+            if (GUILayout.Button($"Regeneration Rate - {healthRegenerationCooldownPercent}%")) // Uncommon
+            {
+                playerAttributes.HealthAttributes.HealthRegenerationCooldown *= 1 - healthRegenerationCooldownPercent;
+                healthRegenerationCooldownPercent = Random.Range(2, 5) / 100f;
+                tradingPoints--;
+            }
+
+            //public float FearIncrease { get; set; }
+            //public float Calmness { get; set; }
+            //public float CalmnessRegenerationAmount { get; set; }
+            //public float CalmnessRegenerationCooldown { get; set; }
 
             GUILayout.EndArea();
+
+            #endregion
+
+            #region Movement
+
+            GUILayout.BeginArea(new Rect(400, 0, 200, 200));
+
+            GUILayout.TextArea("MOVEMENT");
+
+            //if (GUILayout.Button($"Stamina + {staminaPercent}%")) // Rare
+            //{
+            //    var StaminaBeforeUpdate = playerAttributes.MovementAttributes.Stamina;
+            //    playerAttributes.MovementAttributes.Stamina *= 1 + staminaPercent;
+            //    var StaminaDiff = Mathf.RoundToInt(playerAttributes.MovementAttributes.Stamina - StaminaBeforeUpdate);
+            //    healthPercent = Random.Range(2, 5) / 100f;
+            //    healthSystem.UpdateHealth(StaminaDiff); // Change to movementSystem
+            //    tradingPoints--;
+            //}
+
+
+            //if (GUILayout.Button($"Stamina Regen + {staminaRegenPercent}%")) // Uncommon
+            //{
+            //    playerAttributes.MovementAttributes.StaminaRegenerationAmount *= 1 + staminaRegenPercent;
+            //    staminaRegenPercent = Random.Range(2, 5) / 100f;
+            //    tradingPoints--;
+            //}
+
+            //public float StaminaRegenerationCooldown { get; set; }
+
+            if (GUILayout.Button($"Speed + {moveSpeedPercent}%")) // Unreal
+            {
+                playerAttributes.MovementAttributes.MoveSpeed *= 1 + moveSpeedPercent;
+                moveSpeedPercent = Random.Range(1, 4) / 100f;
+                tradingPoints--;
+            }
+
+            //public float BoostSpeedMultiplier { get; set; }
+            //public float BoostStaminaCost { get; set; }
+            //public float DashSpeedMultiplier { get; set; }
+            //public float DashStaminaCost { get; set; }
+            //public float DashCooldown { get; set; }
+            //public float DashDuration { get; set; }
+
+            GUILayout.EndArea();
+
+            #endregion
+
         }
     }
 }

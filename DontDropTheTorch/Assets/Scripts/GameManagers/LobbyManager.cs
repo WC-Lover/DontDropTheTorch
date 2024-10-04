@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
 using Unity.Services.Authentication;
+using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -26,15 +27,22 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private TMP_InputField lobbyCodeInput;
     [SerializeField] private TMP_InputField maxPlayersInput;
 
+    private async void Start()
+    {
+        await UnityServices.InitializeAsync();
+        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        networkManager = GetComponent<NetworkManager>();
+    }
+
     void Update()
     {
-        if (InGame) return;
-        if (InLobby && CurrentLobby.AvailableSlots == 0)
-        {
-            if (IsLobbyLeader) NetworkManager.Singleton.StartHost();
-            else NetworkManager.Singleton.StartClient();
-            InGame = true;
-        }
+        //if (InGame) return;
+        //if (InLobby && CurrentLobby.AvailableSlots == 0)
+        //{
+        //    if (IsLobbyLeader) networkManager.StartHost();
+        //    else networkManager.StartClient();
+        //    InGame = true;
+        //}
     }
 
     public async void CreateLobbyAsync()
@@ -76,6 +84,7 @@ public class LobbyManager : MonoBehaviour
 
     public async void ConnectToLobbyAsync()
     {
+        if (lobbyCodeInput.text.Length <= 6) return;
         try
         {
             CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCodeInput.text);

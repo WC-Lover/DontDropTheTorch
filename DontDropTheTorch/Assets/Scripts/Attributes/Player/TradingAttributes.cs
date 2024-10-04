@@ -5,7 +5,7 @@ public class TradingAttributes
 
     public TradingAttributes()
     {
-        TraderSpawnTime = 6f;
-        TradingTime = 4f;
+        TraderSpawnTime = PlayerAttributesSettings.TraderSpawnTime;
+        TradingTime = PlayerAttributesSettings.TradingTime;
     }
 }

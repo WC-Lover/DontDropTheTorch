@@ -8,7 +8,7 @@ public class MovementSystem : NetworkBehaviour
 
     private Camera mainCam;
     private Rigidbody2D rigidBody;
-
+    private MovementSFXController movementSFXController;
     private Vector2 mousePosition;
     private Vector2 moveDirection;
 
@@ -18,11 +18,20 @@ public class MovementSystem : NetworkBehaviour
 
     private float dashDuration;
     private float dashCooldown;
-    private bool isDashing = false;
 
-    private bool isBoosting = false;
+    public bool isRunning { get; private set; }
+    public bool isDashing { get; private set; }
+    public bool isBoosting { get; private set; }
 
     private MovementAttributes attributes;
+
+    public override void OnNetworkSpawn()
+    {
+        rigidBody = GetComponent<Rigidbody2D>();
+        movementSFXController = GetComponentInChildren<MovementSFXController>();
+        mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+    }
+
     public void SetAttributes(PlayerAttributes playerAttributes)
     {
         attributes = playerAttributes.MovementAttributes;
@@ -32,9 +41,6 @@ public class MovementSystem : NetworkBehaviour
 
         dashDuration = attributes.DashDuration;
         dashCooldown = attributes.DashCooldown;
-
-        rigidBody = GetComponent<Rigidbody2D>();
-        mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
     }
 
     void Update()
@@ -77,6 +83,10 @@ public class MovementSystem : NetworkBehaviour
         #endregion
 
         rigidBody.velocity = moveDirection * attributes.MoveSpeed;
+
+        if (rigidBody.velocity != new Vector2(0, 0)) movementSFXController.RunSFX();
+        else movementSFXController.StopSFX();
+        
 
         #region Rotation
 

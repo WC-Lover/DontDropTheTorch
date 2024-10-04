@@ -1,0 +1,12 @@
+Stamina = 2
+StaminaRegenerationAmount = 2
+StaminaRegenerationCooldown = 2
+Stamina = 2
+StaminaRegenerationAmount = 2
+StaminaRegenerationCooldown = 2
+Stamina = 0
+StaminaRegenerationAmount = 0
+StaminaRegenerationCooldown = 0
+Stamina = 2
+StaminaRegenerationAmount = 2
+StaminaRegenerationCooldown = 2

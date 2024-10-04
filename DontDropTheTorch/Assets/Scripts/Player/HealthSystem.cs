@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.UI;
 
 public class HealthSystem : NetworkBehaviour
 {
     private HealthAttributes attributes;
+    [SerializeField] private Image healthBarImage;
     private float health;
     private Rigidbody2D rigidBody;
     private MovementSystem movementSystem;
@@ -84,6 +86,7 @@ public class HealthSystem : NetworkBehaviour
     private void PlayerIsDamaged(float damage, Vector2 direction, float pushStrengthMultiplier)
     {
         health -= damage;
+        healthBarImage.fillAmount = Mathf.Clamp(health / attributes.HealthAmount, 0, 1);
         if (IsOwner)
         {
             movementSystem.enabled = false;
@@ -103,7 +106,7 @@ public class HealthSystem : NetworkBehaviour
     {
         IsDead = false;
         health = attributes.HealthAmount;
-
+        healthBarImage.fillAmount = 1;
         if (IsOwner)
         {
             transform.position = new Vector3(tradingZoneAreaStartX + 5, 0, 0);

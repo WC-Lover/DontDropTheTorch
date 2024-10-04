@@ -1,4 +1,6 @@
-public class MovementAttributes
+using UnityEngine;
+
+public class MovementAttributes : MonoBehaviour
 {
     public float Stamina { get; set; }
     public float StaminaRegenerationAmount { get; set; }
@@ -13,15 +15,16 @@ public class MovementAttributes
 
     public MovementAttributes()
     {
-        Stamina = 100f;
-        StaminaRegenerationAmount = 2f;
-        StaminaRegenerationCooldown = 5f;
-        MoveSpeed = 3f;
-        BoostSpeedMultiplier = 1.75f;
-        BoostStaminaCost = 1.5f;
-        DashSpeedMultiplier = 5f;
-        DashStaminaCost = 30f;
-        DashCooldown = 2.5f;
-        DashDuration = 0.25f;
+        Stamina = PlayerAttributesSettings.Stamina;
+        Debug.Log(Stamina);
+        StaminaRegenerationAmount = PlayerAttributesSettings.StaminaRegenerationAmount;
+        StaminaRegenerationCooldown = PlayerAttributesSettings.StaminaRegenerationCooldown;
+        MoveSpeed = PlayerAttributesSettings.MoveSpeed;
+        BoostSpeedMultiplier = PlayerAttributesSettings.BoostSpeedMultiplier;
+        BoostStaminaCost = PlayerAttributesSettings.BoostStaminaCost;
+        DashSpeedMultiplier = PlayerAttributesSettings.DashSpeedMultiplier;
+        DashStaminaCost = PlayerAttributesSettings.DashStaminaCost;
+        DashCooldown = PlayerAttributesSettings.DashCooldown;
+        DashDuration = PlayerAttributesSettings.DashDuration;
     }
 }
