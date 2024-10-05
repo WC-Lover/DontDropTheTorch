@@ -112,12 +112,10 @@ public static class PlayerAttributesSettings
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    Debug.Log(line);
                     string[] splitAttribute = line.Split('=');
                     if (splitAttribute.Length == 2)
                     {
                         string key = splitAttribute[0];
-                        Debug.Log(key);
                         float value = float.Parse(splitAttribute[1]);
                         switch (key)
                         {

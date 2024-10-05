@@ -24,7 +24,7 @@ public class TradingSystem : NetworkBehaviour
     private int playersInsideTradingZone;
 
     public int playersAlive;
-    public int tradingPoints;
+    public int tradingPoints; // make NetworkVariable and update on server detects kill!
 
     private List<Transform> otherPlayers;
 

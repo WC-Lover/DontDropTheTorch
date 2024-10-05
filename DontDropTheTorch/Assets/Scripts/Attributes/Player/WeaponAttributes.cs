@@ -1,7 +1,7 @@
 public class WeaponAttributes
 {
     public float Damage { get; set; }
-    public int RoundAmmo { get; set; }
+    public int ClipCapacity { get; set; }
     public int ProjectileAmount { get; set; }
     public float ProjectileSpreadAngle { get; set; }
     public int Penetration { get; set; }
@@ -24,6 +24,6 @@ public class WeaponAttributes
         CritChance = PlayerAttributesSettings.CritChance;
         FireRate = PlayerAttributesSettings.FireRate;
         ReloadTime = PlayerAttributesSettings.ReloadTime;
-        RoundAmmo = PlayerAttributesSettings.RoundAmmo;
+        ClipCapacity = PlayerAttributesSettings.RoundAmmo;
     }
 }

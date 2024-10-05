@@ -16,7 +16,6 @@ public class MovementAttributes : MonoBehaviour
     public MovementAttributes()
     {
         Stamina = PlayerAttributesSettings.Stamina;
-        Debug.Log(Stamina);
         StaminaRegenerationAmount = PlayerAttributesSettings.StaminaRegenerationAmount;
         StaminaRegenerationCooldown = PlayerAttributesSettings.StaminaRegenerationCooldown;
         MoveSpeed = PlayerAttributesSettings.MoveSpeed;

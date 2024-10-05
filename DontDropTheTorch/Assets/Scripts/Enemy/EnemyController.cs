@@ -129,24 +129,22 @@ public class EnemyController : NetworkBehaviour
         return nearestPlayerTransform;
     }
 
-    // Make rpc, no Client can deal damage to Enemy on it's side, only through Host!
+    // add same to 
     public void DealDamageToEnemyRpc(float damage, Vector2 rayDirection)
     {
         netHealth.Value -= damage;
         healthBarImage.fillAmount = Mathf.Clamp(attributes.Health / health, 0, 1);
     }
 
+    // doesn't work
     private void HealthChanged(float previousValue, float newValue)
     {
         if (!IsServer) return;
 
         health = newValue;
 
-        if (health <= 0)
-        {
-            if (IsServer) DespawnEnemy();
-            else DespawnEnemyRpc();
-        }
+        if (health <= 0) DespawnEnemy();
+
     }
 
     [Rpc(SendTo.Server)]

@@ -2,6 +2,8 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
+using Cinemachine;
 
 public class WeaponSystem : NetworkBehaviour
 {
@@ -9,7 +11,7 @@ public class WeaponSystem : NetworkBehaviour
 
     float fireRate;
     bool fireAlready;
-    int roundAmmo;
+    int clipCapacity;
 
     private WeaponSFXController weaponSFXController;
 
@@ -20,11 +22,14 @@ public class WeaponSystem : NetworkBehaviour
     private Camera mainCam;
     private float reloadTime;
 
+    [SerializeField] private ScreenShakeProfile screenShakeProfile;
+    private CinemachineImpulseSource impulseSource;
+
     public override void OnNetworkSpawn()
     {
         weaponSFXController = GetComponent<WeaponSFXController>();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-        
+        impulseSource = GetComponent<CinemachineImpulseSource>();
     }
 
     public void SetAttributes(PlayerAttributes playerAttributes)
@@ -34,7 +39,7 @@ public class WeaponSystem : NetworkBehaviour
         fireAlready = false;
         fireRate = weaponAttributes.FireRate;
 
-        roundAmmo = weaponAttributes.RoundAmmo;
+        clipCapacity = weaponAttributes.ClipCapacity;
     }
 
     private void LateUpdate()
@@ -49,22 +54,6 @@ public class WeaponSystem : NetworkBehaviour
 
         if (!Cursor.visible) Cursor.visible = true;
 
-        if (Input.GetKey(KeyCode.Mouse0) && roundAmmo == 0)
-        {
-            weaponSFXController.EmptyAmmoShotSFX();
-            return;
-        }
-
-        if (Input.GetKey(KeyCode.Mouse0) && !fireAlready && roundAmmo > 0)
-        {
-            Fire();
-        }
-
-        if (Input.GetKey(KeyCode.R))
-        {
-            Reload();
-        }
-
         if (fireAlready)
         {
             fireRate -= Time.deltaTime;
@@ -73,6 +62,22 @@ public class WeaponSystem : NetworkBehaviour
                 fireRate = weaponAttributes.FireRate;
                 fireAlready = false;
             }
+        }
+
+        if (Input.GetKey(KeyCode.Mouse0) && clipCapacity == 0)
+        {
+            weaponSFXController.EmptyAmmoShotSFX();
+            return;
+        }
+
+        if (Input.GetKey(KeyCode.Mouse0) && !fireAlready && clipCapacity > 0)
+        {
+            Fire();
+        }
+
+        if (Input.GetKey(KeyCode.R))
+        {
+            Reload();
         }
     }
 
@@ -88,7 +93,7 @@ public class WeaponSystem : NetworkBehaviour
     private void Reload()
     {
         Cursor.visible = false;
-        roundAmmo = weaponAttributes.RoundAmmo;
+        clipCapacity = weaponAttributes.ClipCapacity;
         reloadTime = weaponAttributes.ReloadTime;
         weaponSFXController.ReloadSFX();
     }
@@ -96,12 +101,16 @@ public class WeaponSystem : NetworkBehaviour
     private void Fire()
     {
         fireAlready = true;
-        roundAmmo--;
+        clipCapacity--;
 
         #region Ray Cast Shooting
 
         Vector2 weaponDirection = transform.right;
         Vector2 rayDirection = weaponDirection;
+
+        screenShakeProfile.defaultVelocity = -weaponDirection;
+        CameraShakeManager.instance.ScreenShakeFromProfile(screenShakeProfile, impulseSource);
+        //cameraShake.ShakeCamera();
 
         for (int i = 0; i < weaponAttributes.ProjectileAmount; i++)
         {
@@ -114,12 +123,25 @@ public class WeaponSystem : NetworkBehaviour
             CreateShotTrail(rayDirection);
             ShootSFX();
 
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, weaponAttributes.Range);
-            if (hit.collider != null)
+            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, rayDirection, weaponAttributes.Range);
+
+            Array.Sort(hits, (RaycastHit2D x, RaycastHit2D y) => x.distance.CompareTo(y.distance));
+
+            for (int j = 0; j < hits.Length; j++)
             {
-                if (hit.transform.TryGetComponent<EnemyController>(out var enemyController))
+                if (j >= weaponAttributes.Penetration) break;
+
+                if (hits[j].collider != null)
                 {
-                    enemyController.DealDamageToEnemyRpc(weaponAttributes.Damage, rayDirection); // if true -> killed an enemy
+                    if (hits[j].transform.TryGetComponent<EnemyController>(out var enemyController))
+                    {
+                        int critRandom = Random.Range(1, 100);
+                        int accuracyRandom = Random.Range(1, 100);
+
+                        float damage = weaponAttributes.Damage;
+                        if (critRandom <= weaponAttributes.CritChance) damage *= weaponAttributes.Crit;
+                        if (accuracyRandom <= weaponAttributes.Accuracy) enemyController.DealDamageToEnemyRpc(damage, rayDirection); // if true -> killed an enemy
+                    }
                 }
             }
         }

@@ -19,7 +19,7 @@ public class PlayerController : NetworkBehaviour
 
         if (IsOwner)
         {
-            CameraFollowPlayer.PlayerToFollowTransform = transform;
+            CameraShakeManager.instance.virtualCamera.Follow = transform;
         }
         else
         {
