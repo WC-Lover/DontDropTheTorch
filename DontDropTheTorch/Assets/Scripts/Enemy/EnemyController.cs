@@ -65,7 +65,7 @@ public class EnemyController : NetworkBehaviour
         spawnAttributes = new EnemySpawnAttributes();
 
         health = attributes.Health;
-        netHealth.Value = attributes.Health;
+        if (IsServer) netHealth.Value = attributes.Health;
         speed = attributes.Speed;
         attackCooldown = attributes.AttackCooldown;
 
@@ -129,14 +129,21 @@ public class EnemyController : NetworkBehaviour
         return nearestPlayerTransform;
     }
 
-    // add same to 
-    public void DealDamageToEnemyRpc(float damage, Vector2 rayDirection)
+    // add same to TradingPoints? instead of adding there?
+    public void DealDamageToEnemy(float damage, Vector2 rayDirection)
     {
-        netHealth.Value -= damage;
-        healthBarImage.fillAmount = Mathf.Clamp(attributes.Health / health, 0, 1);
+        if (netHealth.Value - damage <= 0) TradingSystem.Instance.tradingPoints++;
+
+        DealDamageToEnemyRpc(damage, rayDirection);
     }
 
-    // doesn't work
+    [Rpc(SendTo.Server)]
+    private void DealDamageToEnemyRpc(float damage, Vector2 rayDirection)
+    {
+        netHealth.Value -= damage;
+        //healthBarImage.fillAmount = Mathf.Clamp(attributes.Health / health, 0, 1);
+    }
+
     private void HealthChanged(float previousValue, float newValue)
     {
         if (!IsServer) return;

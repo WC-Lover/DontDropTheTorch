@@ -42,8 +42,8 @@ public class CameraShakeManager : MonoBehaviour
         impulseSource.m_DefaultVelocity = profile.defaultVelocity;
         impulseDefinition.m_CustomImpulseShape = profile.impulseCurve;
 
-        // Changle impulse listener settings
-        impulseListener.m_ReactionSettings.m_AmplitudeGain = profile.listenerAmplitude;
+        // Change impulse listener settings
+        impulseListener.m_ReactionSettings.m_AmplitudeGain = profile.listenerAmplitude; // leave this one to 0, otherwise changes Z axis and enemies disappear.
         impulseListener.m_ReactionSettings.m_FrequencyGain = profile.listenerFrequency;
         impulseListener.m_ReactionSettings.m_Duration = profile.listenerDuration;
     }

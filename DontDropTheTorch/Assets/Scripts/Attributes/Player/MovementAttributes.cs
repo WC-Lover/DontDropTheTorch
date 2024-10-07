@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MovementAttributes : MonoBehaviour
+public class MovementAttributes
 {
     public float Stamina { get; set; }
     public float StaminaRegenerationAmount { get; set; }

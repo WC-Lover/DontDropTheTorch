@@ -140,7 +140,7 @@ public class WeaponSystem : NetworkBehaviour
 
                         float damage = weaponAttributes.Damage;
                         if (critRandom <= weaponAttributes.CritChance) damage *= weaponAttributes.Crit;
-                        if (accuracyRandom <= weaponAttributes.Accuracy) enemyController.DealDamageToEnemyRpc(damage, rayDirection); // if true -> killed an enemy
+                        if (accuracyRandom <= weaponAttributes.Accuracy) enemyController.DealDamageToEnemy(damage, rayDirection); // if true -> killed an enemy
                     }
                 }
             }

@@ -165,10 +165,9 @@ public class TestUIManager : MonoBehaviour
     {
         if (lobbyManager.IsLobbyLeader)
         {
-            if (GUILayout.Button($"{lobbyManager.LobbyCode}")) Debug.Log($"{lobbyManager.LobbyCode}");
-            if (GUILayout.Button($"Start Host(Solo Test)")) networkManager.StartHost();
+            if (GUILayout.Button($"Start Game")) lobbyManager.StartGame();
         }
-        else if (GUILayout.Button($"Start Client")) networkManager.StartClient();
+        //else if (GUILayout.Button($"Start Client")) networkManager.StartClient();
 
         if (GUILayout.Button("Leave Lobby")) lobbyManager.LeaveLobbyAsync();
     }
@@ -176,7 +175,7 @@ public class TestUIManager : MonoBehaviour
     void GameUI()
     {
         if (GUILayout.Button("Create Lobby")) lobbyManager.CreateLobbyAsync();
-        if (GUILayout.Button("Connect to Lobby")) lobbyManager.ConnectToLobbyAsync();
+        if (GUILayout.Button("Connect to Lobby")) lobbyManager.ListLobbies();
 
     }
 
