@@ -7,13 +7,15 @@ using UnityEngine.UI;
 
 public class EnemyController : NetworkBehaviour
 {
+    
+    public int ChaseMode = 0;
+
 
     private NetworkVariable<float> netHealth = new NetworkVariable<float>();
 
     private NetworkObject networkObject;
 
     private EnemyAttributes attributes;
-    private EnemySpawnAttributes spawnAttributes;
 
     [SerializeField] private Image healthBarImage;
     private float health;
@@ -30,11 +32,27 @@ public class EnemyController : NetworkBehaviour
 
     private List<Transform> players;
     private Transform nearestPlayerTransform;
+    private Rigidbody2D nearestPlayerRB;
+
+    private float predictionTime = 1f;
+    private float flankDistance = 1f;
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!IsServer) return;
 
+        TryAttackNearbyCollider(collision);
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (!IsServer) return;
+
+        TryAttackNearbyCollider(collision);
+    }
+
+    private void TryAttackNearbyCollider(Collision2D collision)
+    {
         if (attackCooldown <= 0 && collision.collider.TryGetComponent<HealthSystem>(out var healthSystem))
         {
             attackCooldown = attributes.AttackCooldown;
@@ -62,7 +80,6 @@ public class EnemyController : NetworkBehaviour
         players = new List<Transform>(LobbyManager.LobbyPlayersTransformsInludingLocal);
         
         attributes = new EnemyAttributes();
-        spawnAttributes = new EnemySpawnAttributes();
 
         health = attributes.Health;
         if (IsServer) netHealth.Value = attributes.Health;
@@ -82,6 +99,29 @@ public class EnemyController : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        //if (ChaseMode == 0)
+        //{
+
+        //#region Wondering with restricted eye sight
+        ///*
+        // * Zombies are wondering around with radius of what they see and chase
+        // */
+
+        //float enemieSeeRadius = 4.5f; // range of detection
+        //float leapRange = attributes.LeapRange; // range of active chase phase
+        //float attackRange = attributes.AttackRange; // range of attack
+
+
+
+
+        //#endregion
+
+        //}
+        //else if (ChaseMode == 1)
+        //{
+
+        //}
+
         #region Find Nearest Player
 
         if (nearestTargetCheckCooldown <= 0 || nearestTargetDead)
@@ -95,12 +135,52 @@ public class EnemyController : NetworkBehaviour
 
         #endregion
 
-        var direction = nearestPlayerTransform.position - transform.position;
+        // if distance from enemy to player is shorter than leap distance -> charge directly into player.
 
+        if (Vector2.Distance(transform.position, nearestPlayerTransform.position) <= attributes.LeapRange)
+        {
+            //MoveTowardsNearestPlayer();
+        }
+
+        // predict players' next position
+
+        var playerMoveDirection = PredictPlayerPosition();
+
+        var flank = AddFlank(playerMoveDirection);
+
+        //Debug.DrawLine(transform.position, playerMoveDirection, Color.white);
+        //Debug.DrawLine(transform.position, flank, Color.black);
+
+        var direction = flank - transform.position;
         if (attackCooldown > 0) attackCooldown -= Time.deltaTime;
 
         MoveTowardsNearestPlayer(direction);
 
+    }
+
+    Vector3 PredictPlayerPosition()
+    {
+        if (nearestPlayerRB != null)
+        {
+            Vector2 playerVelocity = nearestPlayerRB.velocity;
+
+            Vector2 predictedPosition = (Vector2)nearestPlayerTransform.position + playerVelocity * predictionTime;
+
+            return predictedPosition;
+        }
+
+        return nearestPlayerTransform.position;
+    }
+
+    Vector3 AddFlank(Vector2 predictedPosition)
+    {
+        Vector2 directionToPlayer = (predictedPosition - (Vector2)transform.position).normalized;
+
+        Vector2 perpendicularDirection = new Vector2(-directionToPlayer.y, directionToPlayer.x);
+
+        Vector2 flankedPosition = predictedPosition + perpendicularDirection * flankDistance;
+
+        return flankedPosition;
     }
 
     private void MoveTowardsNearestPlayer(Vector3 direction)
@@ -126,6 +206,10 @@ public class EnemyController : NetworkBehaviour
                 nearestPlayerTransform = players[i];
             }
         }
+        if (!nearestPlayerTransform) return null;
+
+        nearestPlayerRB = nearestPlayerTransform.GetComponent<Rigidbody2D>();
+
         return nearestPlayerTransform;
     }
 

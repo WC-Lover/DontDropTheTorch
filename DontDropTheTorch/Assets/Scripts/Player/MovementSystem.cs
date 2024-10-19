@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using System;
 
 public class MovementSystem : NetworkBehaviour
 {
@@ -24,6 +25,14 @@ public class MovementSystem : NetworkBehaviour
     public bool isBoosting { get; private set; }
 
     private MovementAttributes attributes;
+    private float hookCooldown = 1f;
+    private bool isGraplingHook;
+    private float hookDuration;
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        isGraplingHook = false;
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -66,6 +75,13 @@ public class MovementSystem : NetworkBehaviour
     {
 
         if (!IsOwner) return;
+
+        if (isGraplingHook)
+        {
+            hookDuration -= Time.deltaTime;
+            if (hookDuration <= 0) isGraplingHook = false;
+            return;
+        }
 
         #region Dash effect
 
@@ -149,5 +165,27 @@ public class MovementSystem : NetworkBehaviour
 
         #endregion
 
+        #region Grapling Hook
+
+        if (Input.GetKey(KeyCode.Mouse1) && hookCooldown <= 0)
+        {
+            if (!HookRayCast()) return;
+            hookCooldown = 1f;
+            isGraplingHook = true;
+            stamina -= 5f;
+            rigidBody.velocity = (mousePosition - (Vector2)transform.position).normalized * 10f;
+            hookDuration = 1f;
+        }
+        else if (hookCooldown > 0) hookCooldown -= Time.deltaTime;
+
+        #endregion
+
+    }
+
+    private bool HookRayCast()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, mousePosition);
+        if (hit.collider != null) return true;
+        return false;
     }
 }

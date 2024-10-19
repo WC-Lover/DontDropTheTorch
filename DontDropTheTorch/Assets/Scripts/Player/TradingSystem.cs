@@ -4,6 +4,14 @@ using System;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
+
+/*
+ * Player can sell whatever was bought during current/prev trading period.
+ * If on prev trading, +1 damage was bought then it can be sold during current trading.
+ * If on prev-prev trading, +2 damage was bought and on prev +3 damage was bought, then on current trading only +3 damage can be sold from prev trading by half price?
+ * Allow mode where you can sell and buy anything and everything what was bought previously.
+ * Maybe add system where you can trade with your teammates to exchange skills, you set the price of your own choice.(or Common<->Common, Rare<->Rare equal exchange)
+ */
 public class TradingSystem : NetworkBehaviour
 {
 
@@ -296,19 +304,19 @@ public class TradingSystem : NetworkBehaviour
                 tradingPoints--;
             }
 
-            //if (GUILayout.Button($"Crit + {critPercent}%")) // Rare
-            //{
-            //    playerAttributes.WeaponAttributes.Crit *= 1 + critPercent;
-            //    critPercent = Random.Range(10, 20) / 100f;
-            //    tradingPoints--;
-            //}
+            if (GUILayout.Button($"Crit + {critPercent}%")) // Rare
+            {
+                playerAttributes.WeaponAttributes.Crit *= 1 + critPercent;
+                critPercent = Random.Range(10, 20) / 100f;
+                tradingPoints--;
+            }
 
-            //if (GUILayout.Button($"Crit chance + {critChancePercent}%")) // Rare
-            //{
-            //    playerAttributes.WeaponAttributes.CritChance *= 1 + critChancePercent;
-            //    critChancePercent = Random.Range(10, 20) / 100f;
-            //    tradingPoints--;
-            //}
+            if (GUILayout.Button($"Crit chance + {critChancePercent}%")) // Rare
+            {
+                playerAttributes.WeaponAttributes.CritChance *= 1 + critChancePercent;
+                critChancePercent = Random.Range(10, 20) / 100f;
+                tradingPoints--;
+            }
 
             if (GUILayout.Button($"Fire rate + {fireRatePercent}%")) // Uncommon
             {
@@ -317,12 +325,12 @@ public class TradingSystem : NetworkBehaviour
                 tradingPoints--;
             }
 
-            //if (GUILayout.Button($"Reload time - {reloadTimePercent}%")) // Uncommon
-            //{
-            //    playerAttributes.WeaponAttributes.ReloadTime *= 1 - reloadTimePercent;
-            //    reloadTimePercent = Random.Range(10, 20) / 100f;
-            //    tradingPoints--;
-            //}
+            if (GUILayout.Button($"Reload time - {reloadTimePercent}%")) // Uncommon
+            {
+                playerAttributes.WeaponAttributes.ReloadTime *= 1 - reloadTimePercent;
+                reloadTimePercent = Random.Range(10, 20) / 100f;
+                tradingPoints--;
+            }
 
             // BulletAmount?
 

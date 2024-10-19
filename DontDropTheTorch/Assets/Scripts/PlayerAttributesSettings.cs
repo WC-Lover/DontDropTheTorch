@@ -48,11 +48,9 @@ public static class PlayerAttributesSettings
     public static float HealthAmount { get; set; }
     public static float HealthRegenerationPercent { get; set; }
     public static float HealthRegenerationCooldown { get; set; }
-    public static float FearAmount { get; set; }
-    public static float FearIncrease { get; set; }
-    public static float Calmness { get; set; }
-    public static float CalmnessRegenerationAmount { get; set; }
-    public static float CalmnessRegenerationCooldown { get; set; }
+    public static float Stress { get; set; }
+    public static float StressReductionAmount { get; set; }
+    public static float StressReductionCooldown { get; set; }
 
     #endregion
 
@@ -94,17 +92,35 @@ public static class PlayerAttributesSettings
             writer.WriteLine($"HealthAmount={HealthAmount}");
             writer.WriteLine($"HealthRegenerationPercent={HealthRegenerationPercent}");
             writer.WriteLine($"HealthRegenerationCooldown={HealthRegenerationCooldown}");
-            writer.WriteLine($"FearAmount={FearAmount}");
-            writer.WriteLine($"FearIncrease={FearIncrease}");
-            writer.WriteLine($"Calmness={Calmness}");
-            writer.WriteLine($"CalmnessRegenerationAmount={CalmnessRegenerationAmount}");
-            writer.WriteLine($"CalmnessRegenerationCooldown={CalmnessRegenerationCooldown}");
+            writer.WriteLine($"Stress={Stress}");
+            writer.WriteLine($"StressReductionAmount={StressReductionAmount}");
+            writer.WriteLine($"StressReductionCooldown={StressReductionCooldown}");
         }
     }
 
     public static void LoadSettings()
     {
         string filePath = Path.Combine(Application.persistentDataPath, "mySettingsData.txt");
+
+        if (File.Exists(filePath))
+        {
+            LoadSettingsFromFile(filePath);
+        }
+        else
+        {
+            TextAsset settingsData = Resources.Load<TextAsset>("mySettingsData");
+
+            if (settingsData != null)
+            {
+                File.WriteAllText(filePath, settingsData.text);
+                LoadSettingsFromFile(filePath);
+            }
+        }
+
+    }
+
+    public static void LoadSettingsFromFile(string filePath)
+    {
         if (File.Exists(filePath))
         {
             using (StreamReader reader = new StreamReader(filePath))
@@ -204,20 +220,14 @@ public static class PlayerAttributesSettings
                             case "HealthRegenerationCooldown":
                                 HealthRegenerationCooldown = value;
                                 break;
-                            case "FearAmount":
-                                FearAmount = value;
+                            case "Stress":
+                                Stress = value;
                                 break;
-                            case "FearIncrease":
-                                FearIncrease = value;
+                            case "StressReductionAmount":
+                                StressReductionAmount = value;
                                 break;
-                            case "Calmness":
-                                Calmness = value;
-                                break;
-                            case "CalmnessRegenerationAmount":
-                                CalmnessRegenerationAmount = value;
-                                break;
-                            case "CalmnessRegenerationCooldown":
-                                CalmnessRegenerationCooldown = value;
+                            case "StressReductionCooldown":
+                                StressReductionCooldown = value;
                                 break;
                         }
                     }

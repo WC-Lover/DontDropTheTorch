@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   impactTime: 0.2
   impactForce: 1
-  defaultVelocity: {x: -1, y: -1, z: 0}
+  defaultVelocity: {x: 0.71082175, y: -0.7033723, z: 0}
   impulseCurve:
     serializedVersion: 2
     m_Curve:
@@ -30,8 +30,17 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0.054613084
       value: 0.7689338
-      inSlope: 0.031647682
-      outSlope: 0.031647682
+      inSlope: -4.2995205
+      outSlope: -4.2995205
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.09881592
+      value: 0.3300438
+      inSlope: -4.9885554
+      outSlope: -4.9885554
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -39,24 +48,15 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0.41304064
       value: 0.31492645
-      inSlope: -0.41524854
-      outSlope: -0.41524854
+      inSlope: -0.048109986
+      outSlope: -0.048109986
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.9833374
-      value: 0.5636711
-      inSlope: 0.43616706
-      outSlope: 0.43616706
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  listenerAmplitude: 1
+  listenerAmplitude: 0
   listenerFrequency: 1
-  listenerDuration: 1
+  listenerDuration: 0.25

@@ -5,7 +5,7 @@ using TMPro;
 
 public class TestUIManager : MonoBehaviour
 {
-    #region DEBUG
+    #region UNITY_EDITOR
     [SerializeField] private GameObject Weapon;
     [SerializeField] private GameObject Movement;
     [SerializeField] private GameObject Health;
@@ -38,9 +38,9 @@ public class TestUIManager : MonoBehaviour
     [SerializeField] private TMP_InputField healthRegenerationCooldown;
     [SerializeField] private TMP_InputField fearAmount;
     [SerializeField] private TMP_InputField fearIncrease;
-    [SerializeField] private TMP_InputField calmness;
-    [SerializeField] private TMP_InputField calmnessRegenerationAmount;
-    [SerializeField] private TMP_InputField calmnessRegenerationCooldown;
+    [SerializeField] private TMP_InputField stress;
+    [SerializeField] private TMP_InputField stressReductionAmount;
+    [SerializeField] private TMP_InputField stressReductionCooldown;
 
     [SerializeField] private TMP_InputField traderSpawnTime;
     [SerializeField] private TMP_InputField tradingTime;
@@ -69,12 +69,12 @@ public class TestUIManager : MonoBehaviour
     {
         lobbyManager = GetComponent<LobbyManager>();
         networkManager = GetComponent<NetworkManager>();
+        PlayerAttributesSettings.LoadSettings();
         
-#if DEBUG
+#if UNITY_EDITOR
         Weapon.SetActive(true);
         Movement.SetActive(true);
         Health.SetActive(true);
-        PlayerAttributesSettings.LoadSettings();
 #endif
 
     }
@@ -86,7 +86,7 @@ public class TestUIManager : MonoBehaviour
         GUILayout.BeginArea(new Rect(10, 10, 300, 300));
         if (lobbyManager.InLobby)
         {
-#if DEBUG
+#if UNITY_EDITOR
             Weapon.SetActive(false);
             Movement.SetActive(false);
             Health.SetActive(false);
@@ -99,7 +99,7 @@ public class TestUIManager : MonoBehaviour
         }
         GUILayout.EndArea();
 
-#if DEBUG
+#if UNITY_EDITOR
 
         GUILayout.BeginArea(new Rect(x, y, width, height));
 
@@ -137,11 +137,9 @@ public class TestUIManager : MonoBehaviour
         if (GUILayout.Button("HealthAmount")) PlayerAttributesSettings.HealthAmount = float.Parse(healthAmount.text);
         if (GUILayout.Button("HealthRegenerationPercent")) PlayerAttributesSettings.HealthRegenerationPercent = float.Parse(healthRegenerationPercent.text);
         if (GUILayout.Button("HealthRegenerationCooldown")) PlayerAttributesSettings.HealthRegenerationCooldown = float.Parse(healthRegenerationCooldown.text);
-        if (GUILayout.Button("FearAmount")) PlayerAttributesSettings.FearAmount = float.Parse(fearAmount.text);
-        if (GUILayout.Button("FearIncrease")) PlayerAttributesSettings.FearIncrease = float.Parse(fearIncrease.text);
-        if (GUILayout.Button("Calmness")) PlayerAttributesSettings.Calmness = float.Parse(calmness.text);
-        if (GUILayout.Button("CalmnessRegenerationAmount")) PlayerAttributesSettings.CalmnessRegenerationAmount = float.Parse(calmnessRegenerationAmount.text);
-        if (GUILayout.Button("CalmnessRegenerationCooldown")) PlayerAttributesSettings.CalmnessRegenerationCooldown = float.Parse(calmnessRegenerationCooldown.text);
+        if (GUILayout.Button("Stress")) PlayerAttributesSettings.Stress = float.Parse(stress.text);
+        if (GUILayout.Button("StressReductionAmount")) PlayerAttributesSettings.StressReductionAmount = float.Parse(stressReductionAmount.text);
+        if (GUILayout.Button("StressReductionCooldown")) PlayerAttributesSettings.StressReductionCooldown = float.Parse(stressReductionCooldown.text);
         
         if (GUILayout.Button("TraderSpawnTime")) PlayerAttributesSettings.TraderSpawnTime = int.Parse(traderSpawnTime.text);
         if (GUILayout.Button("TradingTime")) PlayerAttributesSettings.TradingTime = int.Parse(tradingTime.text);

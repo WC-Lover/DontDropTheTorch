@@ -5,9 +5,13 @@ using UnityEngine.UI;
 using Random = UnityEngine.Random;
 using Cinemachine;
 
+/*
+ * Accuracy system, which shows at the end of each round personal player stats.
+ * [Also show other players stats, to trigger them to discuss and show off, increased communication increases pleasure from the game]
+ */
 public class WeaponSystem : NetworkBehaviour
 {
-    WeaponAttributes weaponAttributes;
+    public WeaponAttributes weaponAttributes;
 
     float fireRate;
     bool fireAlready;
@@ -137,6 +141,8 @@ public class WeaponSystem : NetworkBehaviour
                     {
                         int critRandom = Random.Range(1, 100);
                         int accuracyRandom = Random.Range(1, 100);
+
+                        // if distance is smaller than some N, increase accuracy?
 
                         float damage = weaponAttributes.Damage;
                         if (critRandom <= weaponAttributes.CritChance) damage *= weaponAttributes.Crit;
