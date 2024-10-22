@@ -217,7 +217,7 @@ GameObject:
   - component: {fileID: 8421177882919249236}
   - component: {fileID: 7634369772135321923}
   - component: {fileID: 1837435840683619987}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: PlayerPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -255,7 +255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3309368704
+  GlobalObjectIdHash: 2699210315
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -340,6 +340,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBarImage: {fileID: 406511761588922472}
+  checkRadius: 15
   afterAttackEffect: 0
 --- !u!114 &6169699370319600133
 MonoBehaviour:
@@ -818,8 +819,8 @@ Transform:
   m_GameObject: {fileID: 9205042694252013593}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.6, y: 0, z: 0}
-  m_LocalScale: {x: 0.125, y: 0.075, z: 1}
+  m_LocalPosition: {x: 0.75, y: 0.075, z: 0}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3526979023096282155}
@@ -865,7 +866,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 087a0e77d43aca94982b7bdfea890cf6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

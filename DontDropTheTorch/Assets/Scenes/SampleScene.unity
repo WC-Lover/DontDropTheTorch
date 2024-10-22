@@ -4492,7 +4492,7 @@ MonoBehaviour:
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 34
-    OrthographicSize: 10.2
+    OrthographicSize: 3.5
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -5140,7 +5140,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 10.2
+  orthographic size: 3.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -7843,9 +7843,9 @@ MonoBehaviour:
   healthRegenerationCooldown: {fileID: 2126482212}
   fearAmount: {fileID: 643255510}
   fearIncrease: {fileID: 1717081782}
-  calmness: {fileID: 1298220147}
-  calmnessRegenerationAmount: {fileID: 1140690682}
-  calmnessRegenerationCooldown: {fileID: 1663113941}
+  stress: {fileID: 0}
+  stressReductionAmount: {fileID: 0}
+  stressReductionCooldown: {fileID: 0}
   traderSpawnTime: {fileID: 1973556891}
   tradingTime: {fileID: 334320569}
   x: 0

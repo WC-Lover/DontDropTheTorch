@@ -127,7 +127,7 @@ public class WeaponSystem : NetworkBehaviour
             CreateShotTrail(rayDirection);
             ShootSFX();
 
-            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, rayDirection, weaponAttributes.Range);
+            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, rayDirection, weaponAttributes.Range, 1 << 6);
 
             Array.Sort(hits, (RaycastHit2D x, RaycastHit2D y) => x.distance.CompareTo(y.distance));
 

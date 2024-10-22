@@ -10,10 +10,14 @@ public class HealthSystem : NetworkBehaviour
     private HealthAttributes attributes;
     [SerializeField] private Image healthBarImage;
     private float health;
+    private float stress;
+    public float checkRadius = 15.0f;
     private Rigidbody2D rigidBody;
     private MovementSystem movementSystem;
     private EnemySpawnSystem enemySpawnSystem;
     [SerializeField] private float afterAttackEffect;
+    private int enemyLayerMask = 1 << 6;
+
     public bool IsDead { private set; get; }
 
     public void SetAttributes(PlayerAttributes playerAttributes)
@@ -21,6 +25,7 @@ public class HealthSystem : NetworkBehaviour
         attributes = playerAttributes.HealthAttributes;
 
         health = attributes.HealthAmount;
+        stress = attributes.Stress;
     }
 
     public override void OnNetworkSpawn()
@@ -35,12 +40,20 @@ public class HealthSystem : NetworkBehaviour
         if (afterAttackEffect > 0)
         {
             afterAttackEffect -= Time.deltaTime;
-            if (afterAttackEffect < 0)
+            if (afterAttackEffect <= 0)
             {
                 rigidBody.velocity = Vector2.zero;
                 if (!IsDead) movementSystem.enabled = true; 
             }
         }
+
+        // Add stress to player if enemy is near
+
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, enemyLayerMask, enemyLayerMask);
+
+        foreach (Collider2D collider in colliders) stress += 0.5f * Time.deltaTime;
+
+
     }
 
     public bool TakeDamage(float damage, Vector3 direction, float pushStrengthMultiplier)
@@ -85,7 +98,7 @@ public class HealthSystem : NetworkBehaviour
 
     private void PlayerIsDamaged(float damage, Vector2 direction, float pushStrengthMultiplier)
     {
-        health -= damage;
+        //health -= damage;
         healthBarImage.fillAmount = Mathf.Clamp(health / attributes.HealthAmount, 0, 1);
         if (IsOwner)
         {

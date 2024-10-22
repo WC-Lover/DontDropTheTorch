@@ -13,6 +13,8 @@ public class MovementSystem : NetworkBehaviour
     private Vector2 mousePosition;
     private Vector2 moveDirection;
 
+    private WeaponSystem weaponSystem;
+
     // Create stamina bar
     [SerializeField] private float stamina;
     private float staminaRegenCooldown;
@@ -39,6 +41,7 @@ public class MovementSystem : NetworkBehaviour
         rigidBody = GetComponent<Rigidbody2D>();
         movementSFXController = GetComponentInChildren<MovementSFXController>();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        weaponSystem = GetComponentInChildren<WeaponSystem>();
     }
 
     public void SetAttributes(PlayerAttributes playerAttributes)
@@ -184,7 +187,7 @@ public class MovementSystem : NetworkBehaviour
 
     private bool HookRayCast()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(weaponSystem.transform.position, mousePosition);
         if (hit.collider != null) return true;
         return false;
     }

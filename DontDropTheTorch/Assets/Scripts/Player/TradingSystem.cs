@@ -32,7 +32,7 @@ public class TradingSystem : NetworkBehaviour
     private int playersInsideTradingZone;
 
     public int playersAlive;
-    public int tradingPoints; // make NetworkVariable and update on server detects kill!
+    public NetworkVariable<int> tradingPoints = new NetworkVariable<int>(); // make NetworkVariable and update on server detects kill!
 
     private List<Transform> otherPlayers;
 
@@ -65,7 +65,7 @@ public class TradingSystem : NetworkBehaviour
         isTraderSpawned = false;
 
         playersInsideTradingZone = 0;
-        tradingPoints = 0;
+        if (IsServer) tradingPoints.Value = 0;
     }
 
     public override void OnNetworkSpawn()
@@ -77,6 +77,26 @@ public class TradingSystem : NetworkBehaviour
         otherPlayers = LobbyManager.LobbyPlayersTransforms;
         healthSystem = GetComponent<HealthSystem>();
         playersAlive = 1;
+        tradingPoints.OnValueChanged += OnTradingPointsChangeValue;
+    }
+
+    private void OnTradingPointsChangeValue(int previousValue, int newValue)
+    {
+        if (!IsServer) return;
+
+        tradingPoints.Value = newValue;
+    }
+
+    public void ChangeTradingPoints(int pointsAmount)
+    {
+        if (!IsServer) ChangeTradingPointsRpc(pointsAmount);
+        else tradingPoints.Value += pointsAmount;
+    }
+
+    [Rpc(SendTo.Server)]
+    private void ChangeTradingPointsRpc(int pointsAmount)
+    {
+        tradingPoints.Value += pointsAmount;
     }
 
     private void Update()
@@ -275,61 +295,61 @@ public class TradingSystem : NetworkBehaviour
             {
                 playerAttributes.WeaponAttributes.Damage *= 1 + dmgPercent;
                 dmgPercent = Random.Range(10, 20) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Projectile Amount + 1")) // Rare // Can't update if not enough bulets?
             {
                 playerAttributes.WeaponAttributes.ProjectileAmount++;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Projectile Angle - {projectileAngleSpreadPercent}%")) // Common
             {
                 playerAttributes.WeaponAttributes.ProjectileSpreadAngle *= 1 - projectileAngleSpreadPercent;
                 projectileAngleSpreadPercent = Random.Range(10, 20) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Penetration + 1")) // Rare
             {
                 playerAttributes.WeaponAttributes.Penetration++;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Range + {rangePercent}%")) // Common
             {
                 playerAttributes.WeaponAttributes.Range *= 1 + rangePercent;
                 rangePercent = Random.Range(10, 20) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Crit + {critPercent}%")) // Rare
             {
                 playerAttributes.WeaponAttributes.Crit *= 1 + critPercent;
                 critPercent = Random.Range(10, 20) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Crit chance + {critChancePercent}%")) // Rare
             {
                 playerAttributes.WeaponAttributes.CritChance *= 1 + critChancePercent;
                 critChancePercent = Random.Range(10, 20) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Fire rate + {fireRatePercent}%")) // Uncommon
             {
                 playerAttributes.WeaponAttributes.FireRate *= 1 - fireRatePercent;
                 fireRatePercent = Random.Range(10, 20) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Reload time - {reloadTimePercent}%")) // Uncommon
             {
                 playerAttributes.WeaponAttributes.ReloadTime *= 1 - reloadTimePercent;
                 reloadTimePercent = Random.Range(10, 20) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             // BulletAmount?
@@ -351,21 +371,21 @@ public class TradingSystem : NetworkBehaviour
                 var healthDiff = Mathf.RoundToInt(playerAttributes.HealthAttributes.HealthAmount - healthBeforeUpdate);
                 healthPercent = Random.Range(2, 5) / 100f;
                 healthSystem.UpdateHealth(healthDiff); // Restore or not, health when increased?
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Regen + {regenPercent}%")) // Uncommon
             {
                 playerAttributes.HealthAttributes.HealthRegenerationPercent *= 1 + regenPercent;
                 regenPercent = Random.Range(2, 5) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Regeneration Rate - {healthRegenerationCooldownPercent}%")) // Uncommon
             {
                 playerAttributes.HealthAttributes.HealthRegenerationCooldown *= 1 - healthRegenerationCooldownPercent;
                 healthRegenerationCooldownPercent = Random.Range(2, 5) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             //public float FearIncrease { get; set; }
@@ -407,7 +427,7 @@ public class TradingSystem : NetworkBehaviour
             {
                 playerAttributes.MovementAttributes.MoveSpeed *= 1 + moveSpeedPercent;
                 moveSpeedPercent = Random.Range(1, 4) / 100f;
-                tradingPoints--;
+                ChangeTradingPoints(-1);
             }
 
             //public float BoostSpeedMultiplier { get; set; }

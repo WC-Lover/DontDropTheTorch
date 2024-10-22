@@ -37,6 +37,8 @@ public class EnemyController : NetworkBehaviour
     private float predictionTime = 1f;
     private float flankDistance = 1f;
 
+    [SerializeField] private Transform coin;
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!IsServer) return;
@@ -216,9 +218,9 @@ public class EnemyController : NetworkBehaviour
     // add same to TradingPoints? instead of adding there?
     public void DealDamageToEnemy(float damage, Vector2 rayDirection)
     {
-        if (netHealth.Value - damage <= 0) TradingSystem.Instance.tradingPoints++;
-
-        DealDamageToEnemyRpc(damage, rayDirection);
+        //if (netHealth.Value - damage <= 0) TradingSystem.Instance.tradingPoints++;
+        if (!IsServer) DealDamageToEnemyRpc(damage, rayDirection);
+        else netHealth.Value -= damage;
     }
 
     [Rpc(SendTo.Server)]
@@ -246,6 +248,9 @@ public class EnemyController : NetworkBehaviour
 
     public void DespawnEnemy()
     {
+        Transform coinTransform = Instantiate(coin);
+        coinTransform.position = transform.position;
+        coinTransform.GetComponent<NetworkObject>().Spawn();
         EnemySpawnSystem.Instance.enemyControllers.Remove(this);
         networkObject.Despawn();
     }
