@@ -31,7 +31,7 @@ public class RewardController : NetworkBehaviour
         rewardSFX = GetComponent<RewardSFXController>();
         rewardSFX.CoinDropSFX();
 
-        PickUpTimer = 1000f;
+        PickUpTimer = 1f;
     }
 
     public void Update()
@@ -39,6 +39,10 @@ public class RewardController : NetworkBehaviour
         if (!IsServer) return;
 
         if (PickUpTimer > 0) PickUpTimer -= Time.deltaTime;
-        else NetworkObject.Despawn();
+        else
+        {
+            TradingSystem.Instance.NotPickedUpCoins++;
+            NetworkObject.Despawn();
+        }
     }
 }

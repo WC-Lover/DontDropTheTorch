@@ -367,9 +367,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa2a72ecdd2367b40837d0d68e450589, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NotPickedUpCoins: 0
   traderPrefab: {fileID: 6137274723532618496, guid: b049fe0281096f64ba65346f12305ffb, type: 3}
   playersAlive: 0
-  tradingPoints: 0
+  tradingPoints:
+    m_InternalValue: 0
 --- !u!50 &8421177882919249236
 Rigidbody2D:
   serializedVersion: 4

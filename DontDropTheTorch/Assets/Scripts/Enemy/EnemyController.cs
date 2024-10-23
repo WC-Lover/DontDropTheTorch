@@ -236,8 +236,13 @@ public class EnemyController : NetworkBehaviour
 
         health = newValue;
 
-        if (health <= 0) DespawnEnemy();
-
+        if (health <= 0)
+        {
+            DespawnEnemy();
+            Transform coinTransform = Instantiate(coin);
+            coinTransform.position = transform.position;
+            coinTransform.GetComponent<NetworkObject>().Spawn();
+        }
     }
 
     [Rpc(SendTo.Server)]
@@ -248,9 +253,6 @@ public class EnemyController : NetworkBehaviour
 
     public void DespawnEnemy()
     {
-        Transform coinTransform = Instantiate(coin);
-        coinTransform.position = transform.position;
-        coinTransform.GetComponent<NetworkObject>().Spawn();
         EnemySpawnSystem.Instance.enemyControllers.Remove(this);
         networkObject.Despawn();
     }

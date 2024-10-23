@@ -3,6 +3,7 @@ using Unity.Netcode;
 using System;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
+using TMPro;
 
 
 /*
@@ -16,6 +17,8 @@ public class TradingSystem : NetworkBehaviour
 {
 
     public static TradingSystem Instance;
+    public int NotPickedUpCoins;
+
     HealthSystem healthSystem;
 
     [SerializeField] private GameObject traderPrefab;
@@ -77,6 +80,7 @@ public class TradingSystem : NetworkBehaviour
         otherPlayers = LobbyManager.LobbyPlayersTransforms;
         healthSystem = GetComponent<HealthSystem>();
         playersAlive = 1;
+        NotPickedUpCoins = 0;
         tradingPoints.OnValueChanged += OnTradingPointsChangeValue;
     }
 
@@ -138,6 +142,7 @@ public class TradingSystem : NetworkBehaviour
             if (IsServer && !isTrading && playersInsideTradingZone == playersAlive)
             {
                 ReviveDeadPlayers();
+                SplitNotPickedUpCoins();
                 StartTrading();
                 StartTradingRpc();
             }
@@ -156,6 +161,23 @@ public class TradingSystem : NetworkBehaviour
         #endregion
 
     }
+
+    private void SplitNotPickedUpCoins()
+    {
+        if (NotPickedUpCoins == 0) return;
+        Debug.Log("tradingPoints.Value -> " + tradingPoints.Value);
+        Debug.Log("NotPickedUpCoins -> " + NotPickedUpCoins);
+        Debug.Log("playersAlive -> " + playersAlive);
+        int amountPerPlayer = NotPickedUpCoins / playersAlive;
+        tradingPoints.Value += amountPerPlayer;
+        foreach (Transform trans in otherPlayers)
+        {
+            trans.GetComponent<TradingSystem>().tradingPoints.Value += amountPerPlayer;
+        }
+
+        NotPickedUpCoins = 0;
+    }
+
 
     [Rpc(SendTo.NotServer)]
     private void DisableTradingZoneRpc()
@@ -263,15 +285,15 @@ public class TradingSystem : NetworkBehaviour
         if (IsServer)
         {
             GameObject trader = Instantiate(traderPrefab);
-            trader.transform.position = new Vector2(mostRightPlayerX + mostRightPlayerBeamDistance + 16, 0); // change +2 to the length of the light beam
+            trader.transform.position = new Vector2(mostRightPlayerX + mostRightPlayerBeamDistance + 10, 0); // change +2 to the length of the light beam
             traderNetworkObject = trader.GetComponent<NetworkObject>();
             traderNetworkObject.Spawn();
         }
-        
+
         Instance.isTraderSpawned = true;
         // 0.5f is wall width, player needs to be inside zone, not in wall
         // lengthOfTheTradingArea/2 = 5
-        Instance.tradingZoneAreaStartX = mostRightPlayerX + mostRightPlayerBeamDistance + 0.5f - 5 + 16;
+        Instance.tradingZoneAreaStartX = mostRightPlayerX + mostRightPlayerBeamDistance + 0.5f - 5 + 10;
     }
 
     [Rpc(SendTo.Server)]
@@ -440,6 +462,23 @@ public class TradingSystem : NetworkBehaviour
             GUILayout.EndArea();
 
             #endregion
+
+            GUILayout.BeginArea(new Rect(700, 0, 100, 50));
+
+            GUILayout.TextArea($"Points: {tradingPoints.Value}");
+
+            GUILayout.EndArea();
+
+        }
+
+        if (!isTrading && IsOwner)
+        {
+
+            GUILayout.BeginArea(new Rect(100, 0, 100, 50));
+
+            GUILayout.TextArea($"Points: {tradingPoints.Value}");
+
+            GUILayout.EndArea();
 
         }
     }
