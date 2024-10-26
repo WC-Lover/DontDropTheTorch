@@ -16,7 +16,7 @@ public class MovementSystem : NetworkBehaviour
     private WeaponSystem weaponSystem;
 
     // Create stamina bar
-    [SerializeField] private float stamina;
+    public float stamina;
     private float staminaRegenCooldown;
 
     private float dashDuration;
@@ -40,6 +40,7 @@ public class MovementSystem : NetworkBehaviour
     {
         rigidBody = GetComponent<Rigidbody2D>();
         movementSFXController = GetComponentInChildren<MovementSFXController>();
+        movementSFXController.SetVolumeValue();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         weaponSystem = GetComponentInChildren<WeaponSystem>();
     }
@@ -142,7 +143,7 @@ public class MovementSystem : NetworkBehaviour
 
         #region Dash
 
-        if (Input.GetKey(KeyCode.LeftControl) && dashCooldown <= 0)
+        if (Input.GetKey(KeyCode.LeftControl) && dashCooldown <= 0 && stamina >= attributes.DashStaminaCost)
         {
             isDashing = true;
             stamina -= attributes.DashStaminaCost;

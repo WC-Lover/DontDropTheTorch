@@ -32,6 +32,7 @@ public class WeaponSystem : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         weaponSFXController = GetComponent<WeaponSFXController>();
+        weaponSFXController.SetVolumeValue();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
     }
@@ -79,7 +80,7 @@ public class WeaponSystem : NetworkBehaviour
             Fire();
         }
 
-        if (Input.GetKey(KeyCode.R))
+        if (Input.GetKey(KeyCode.R) && clipCapacity < weaponAttributes.ClipCapacity)
         {
             Reload();
         }
@@ -105,7 +106,6 @@ public class WeaponSystem : NetworkBehaviour
     private void Fire()
     {
         fireAlready = true;
-        clipCapacity--;
 
         #region Ray Cast Shooting
 
@@ -118,6 +118,8 @@ public class WeaponSystem : NetworkBehaviour
 
         for (int i = 0; i < weaponAttributes.ProjectileAmount; i++)
         {
+            if (clipCapacity == 0) return;
+
             if (weaponAttributes.ProjectileAmount > 1)
             {
                 float angle = (-weaponAttributes.ProjectileSpreadAngle / 2) + (weaponAttributes.ProjectileSpreadAngle / (weaponAttributes.ProjectileAmount - 1) * i);
@@ -126,6 +128,7 @@ public class WeaponSystem : NetworkBehaviour
 
             CreateShotTrail(rayDirection);
             ShootSFX();
+            clipCapacity--;
 
             RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, rayDirection, weaponAttributes.Range, 1 << 6);
 

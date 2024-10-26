@@ -12,6 +12,12 @@ public class MovementSFXController : NetworkBehaviour
     [SerializeField] AudioClip sfx_dash;
     [SerializeField] AudioClip sfx_boost;
 
+    public void SetVolumeValue(float value = 0.01f)
+    {
+        sfx.volume = value;
+        Debug.Log($"Movement SFX volume -> {sfx.volume}");
+    }
+
     public void DashSFX()
     {
     }

@@ -12,6 +12,12 @@ public class WeaponSFXController : NetworkBehaviour
     [SerializeField] AudioClip sfx_reload;
     [SerializeField] AudioClip sfx_emptyAmmoShot;
 
+    public void SetVolumeValue(float value = 0.01f)
+    {
+        sfx.volume = value;
+        Debug.Log($"Weapon sfx volume -> {sfx.volume}");
+    }
+
     public void EmptyAmmoShotSFX()
     {
         sfx.clip = sfx_emptyAmmoShot;

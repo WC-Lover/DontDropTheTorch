@@ -39,6 +39,11 @@ public class EnemyController : NetworkBehaviour
 
     [SerializeField] private Transform coin;
 
+    private SpriteRenderer enemySpriteRenderer;
+    private bool damageDealt;
+    private float damageDealtEffectTimer;
+    private Color enemyDefaultColor;
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!IsServer) return;
@@ -76,6 +81,7 @@ public class EnemyController : NetworkBehaviour
     {
         networkObject = GetComponent<NetworkObject>();
         enemySFXController = GetComponent<EnemySFXController>();
+        enemySFXController.SetVolumeValue();
 
         netHealth.OnValueChanged += HealthChanged;
 
@@ -94,12 +100,24 @@ public class EnemyController : NetworkBehaviour
 
         rigidBody = GetComponent<Rigidbody2D>();
 
+        enemySpriteRenderer = GetComponent<SpriteRenderer>();
+
         enemySFXController.SpawnSFX();
     }
 
     void Update()
     {
         if (!IsServer) return;
+
+        if (damageDealt)
+        {
+            if (damageDealtEffectTimer > 0) damageDealtEffectTimer -= Time.deltaTime;
+            else
+            {
+                damageDealt = false;
+                enemySpriteRenderer.color = enemyDefaultColor;
+            }
+        }
 
         //if (ChaseMode == 0)
         //{
@@ -219,6 +237,10 @@ public class EnemyController : NetworkBehaviour
     public void DealDamageToEnemy(float damage, Vector2 rayDirection)
     {
         //if (netHealth.Value - damage <= 0) TradingSystem.Instance.tradingPoints++;
+        enemyDefaultColor = enemySpriteRenderer.color;
+        enemySpriteRenderer.color = Color.white;
+        damageDealt = true;
+        damageDealtEffectTimer = 0.15f;
         if (!IsServer) DealDamageToEnemyRpc(damage, rayDirection);
         else netHealth.Value -= damage;
     }

@@ -100,7 +100,7 @@ public static class PlayerAttributesSettings
 
     public static void LoadSettings()
     {
-        string filePath = Path.Combine(Application.persistentDataPath, "mySettingsData.txt");
+        string filePath = Path.Combine(Application.persistentDataPath, "123.txt");
 
         if (File.Exists(filePath))
         {
@@ -116,123 +116,237 @@ public static class PlayerAttributesSettings
                 LoadSettingsFromFile(filePath);
             }
         }
-
     }
 
     public static void LoadSettingsFromFile(string filePath)
     {
-        if (File.Exists(filePath))
+        TextAsset settingsData = Resources.Load<TextAsset>("mySettingsData");
+        string settingsString = settingsData.text;
+        string[] splitSettingsString = settingsString.Split("\n");
+        if (splitSettingsString.Length != 0)
         {
-            using (StreamReader reader = new StreamReader(filePath))
+            foreach (string keyValue in splitSettingsString)
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                string[] splitKeyValue = keyValue.Split("=");
+                string key = splitKeyValue[0];
+                string valueString = splitKeyValue[1];
+                if (float.TryParse(valueString, out float result))
                 {
-                    string[] splitAttribute = line.Split('=');
-                    if (splitAttribute.Length == 2)
+                    float floatValue = result;
+                    switch (key)
                     {
-                        string key = splitAttribute[0];
-                        float value = float.Parse(splitAttribute[1]);
-                        switch (key)
-                        {
-                            // Combat Attributes
-                            case "Damage":
-                                Damage = value;
-                                break;
-                            case "RoundAmmo":
-                                RoundAmmo = (int)value;
-                                break;
-                            case "ProjectileAmount":
-                                ProjectileAmount = (int)value;
-                                break;
-                            case "ProjectileSpreadAngle":
-                                ProjectileSpreadAngle = value;
-                                break;
-                            case "Penetration":
-                                Penetration = (int)value;
-                                break;
-                            case "Accuracy":
-                                Accuracy = value;
-                                break;
-                            case "Range":
-                                Range = value;
-                                break;
-                            case "Crit":
-                                Crit = value;
-                                break;
-                            case "CritChance":
-                                CritChance = value;
-                                break;
-                            case "FireRate":
-                                FireRate = value;
-                                break;
-                            case "ReloadTime":
-                                ReloadTime = value;
-                                break;
+                        // Combat Attributes
+                        case "Damage":
+                            Damage = floatValue;
+                            break;
+                        case "RoundAmmo":
+                            RoundAmmo = (int)floatValue;
+                            break;
+                        case "ProjectileAmount":
+                            ProjectileAmount = (int)floatValue;
+                            break;
+                        case "ProjectileSpreadAngle":
+                            ProjectileSpreadAngle = floatValue;
+                            break;
+                        case "Penetration":
+                            Penetration = (int)floatValue;
+                            break;
+                        case "Accuracy":
+                            Accuracy = floatValue;
+                            break;
+                        case "Range":
+                            Range = floatValue;
+                            break;
+                        case "Crit":
+                            Crit = floatValue;
+                            break;
+                        case "CritChance":
+                            CritChance = floatValue;
+                            break;
+                        case "FireRate":
+                            FireRate = floatValue / 100;
+                            break;
+                        case "ReloadTime":
+                            ReloadTime = floatValue;
+                            break;
 
-                            // Movement Attributes
-                            case "Stamina":
-                                Stamina = value;
-                                break;
-                            case "StaminaRegenerationAmount":
-                                StaminaRegenerationAmount = value;
-                                break;
-                            case "StaminaRegenerationCooldown":
-                                StaminaRegenerationCooldown = value;
-                                break;
-                            case "MoveSpeed":
-                                MoveSpeed = value;
-                                break;
-                            case "BoostSpeedMultiplier":
-                                BoostSpeedMultiplier = value;
-                                break;
-                            case "BoostStaminaCost":
-                                BoostStaminaCost = value;
-                                break;
-                            case "DashSpeedMultiplier":
-                                DashSpeedMultiplier = value;
-                                break;
-                            case "DashStaminaCost":
-                                DashStaminaCost = value;
-                                break;
-                            case "DashCooldown":
-                                DashCooldown = value;
-                                break;
-                            case "DashDuration":
-                                DashDuration = value;
-                                break;
+                        // Movement Attributes
+                        case "Stamina":
+                            Stamina = floatValue;
+                            break;
+                        case "StaminaRegenerationAmount":
+                            StaminaRegenerationAmount = floatValue;
+                            break;
+                        case "StaminaRegenerationCooldown":
+                            StaminaRegenerationCooldown = floatValue;
+                            break;
+                        case "MoveSpeed":
+                            MoveSpeed = floatValue / 100;
+                            break;
+                        case "BoostSpeedMultiplier":
+                            BoostSpeedMultiplier = floatValue / 100;
+                            break;
+                        case "BoostStaminaCost":
+                            BoostStaminaCost = floatValue / 100;
+                            break;
+                        case "DashSpeedMultiplier":
+                            DashSpeedMultiplier = floatValue;
+                            break;
+                        case "DashStaminaCost":
+                            DashStaminaCost = floatValue;
+                            break;
+                        case "DashCooldown":
+                            DashCooldown = floatValue / 100;
+                            break;
+                        case "DashDuration":
+                            DashDuration = floatValue / 100;
+                            break;
 
-                            // Trading Attributes
-                            case "TraderSpawnTime":
-                                TraderSpawnTime = value;
-                                break;
-                            case "TradingTime":
-                                TradingTime = value;
-                                break;
+                        // Trading Attributes
+                        case "TraderSpawnTime":
+                            TraderSpawnTime = floatValue;
+                            break;
+                        case "TradingTime":
+                            TradingTime = floatValue;
+                            break;
 
-                            // Health Attributes
-                            case "HealthAmount":
-                                HealthAmount = value;
-                                break;
-                            case "HealthRegenerationPercent":
-                                HealthRegenerationPercent = value;
-                                break;
-                            case "HealthRegenerationCooldown":
-                                HealthRegenerationCooldown = value;
-                                break;
-                            case "Stress":
-                                Stress = value;
-                                break;
-                            case "StressReductionAmount":
-                                StressReductionAmount = value;
-                                break;
-                            case "StressReductionCooldown":
-                                StressReductionCooldown = value;
-                                break;
-                        }
+                        // Health Attributes
+                        case "HealthAmount":
+                            HealthAmount = floatValue;
+                            break;
+                        case "HealthRegenerationPercent":
+                            HealthRegenerationPercent = floatValue;
+                            break;
+                        case "HealthRegenerationCooldown":
+                            HealthRegenerationCooldown = floatValue;
+                            break;
+                        case "Stress":
+                            Stress = floatValue;
+                            break;
+                        case "StressReductionAmount":
+                            StressReductionAmount = floatValue;
+                            break;
+                        case "StressReductionCooldown":
+                            StressReductionCooldown = floatValue;
+                            break;
                     }
                 }
             }
         }
+        //if (File.Exists(filePath))
+        //{
+        //    using (StreamReader reader = new StreamReader(filePath))
+        //    {
+        //        string line;
+        //        while ((line = reader.ReadLine()) != null)
+        //        {
+        //            string[] splitAttribute = line.Split('=');
+        //            if (splitAttribute.Length == 2)
+        //            {
+        //                string key = splitAttribute[0];
+        //                string value = splitAttribute[1];
+        //                Debug.Log($"key: {key}, value: {value}");
+        //                float floatValue = float.Parse(value);
+        //                switch (key)
+        //                {
+        //                    // Combat Attributes
+        //                    case "Damage":
+        //                        Damage = floatValue;
+        //                        break;
+        //                    case "RoundAmmo":
+        //                        RoundAmmo = (int)floatValue;
+        //                        break;
+        //                    case "ProjectileAmount":
+        //                        ProjectileAmount = (int)floatValue;
+        //                        break;
+        //                    case "ProjectileSpreadAngle":
+        //                        ProjectileSpreadAngle = floatValue;
+        //                        break;
+        //                    case "Penetration":
+        //                        Penetration = (int)floatValue;
+        //                        break;
+        //                    case "Accuracy":
+        //                        Accuracy = floatValue;
+        //                        break;
+        //                    case "Range":
+        //                        Range = floatValue;
+        //                        break;
+        //                    case "Crit":
+        //                        Crit = floatValue;
+        //                        break;
+        //                    case "CritChance":
+        //                        CritChance = floatValue;
+        //                        break;
+        //                    case "FireRate":
+        //                        FireRate = floatValue;
+        //                        break;
+        //                    case "ReloadTime":
+        //                        ReloadTime = floatValue;
+        //                        break;
+
+        //                    // Movement Attributes
+        //                    case "Stamina":
+        //                        Stamina = floatValue;
+        //                        break;
+        //                    case "StaminaRegenerationAmount":
+        //                        StaminaRegenerationAmount = floatValue;
+        //                        break;
+        //                    case "StaminaRegenerationCooldown":
+        //                        StaminaRegenerationCooldown = floatValue;
+        //                        break;
+        //                    case "MoveSpeed":
+        //                        MoveSpeed = floatValue;
+        //                        break;
+        //                    case "BoostSpeedMultiplier":
+        //                        BoostSpeedMultiplier = floatValue;
+        //                        break;
+        //                    case "BoostStaminaCost":
+        //                        BoostStaminaCost = floatValue;
+        //                        break;
+        //                    case "DashSpeedMultiplier":
+        //                        DashSpeedMultiplier = floatValue;
+        //                        break;
+        //                    case "DashStaminaCost":
+        //                        DashStaminaCost = floatValue;
+        //                        break;
+        //                    case "DashCooldown":
+        //                        DashCooldown = floatValue;
+        //                        break;
+        //                    case "DashDuration":
+        //                        DashDuration = floatValue;
+        //                        break;
+
+        //                    // Trading Attributes
+        //                    case "TraderSpawnTime":
+        //                        TraderSpawnTime = floatValue;
+        //                        break;
+        //                    case "TradingTime":
+        //                        TradingTime = floatValue;
+        //                        break;
+
+        //                    // Health Attributes
+        //                    case "HealthAmount":
+        //                        HealthAmount = floatValue;
+        //                        break;
+        //                    case "HealthRegenerationPercent":
+        //                        HealthRegenerationPercent = floatValue;
+        //                        break;
+        //                    case "HealthRegenerationCooldown":
+        //                        HealthRegenerationCooldown = floatValue;
+        //                        break;
+        //                    case "Stress":
+        //                        Stress = floatValue;
+        //                        break;
+        //                    case "StressReductionAmount":
+        //                        StressReductionAmount = floatValue;
+        //                        break;
+        //                    case "StressReductionCooldown":
+        //                        StressReductionCooldown = floatValue;
+        //                        break;
+        //                }
+        //            }
+        //        }
+            //}
+        //}
     }
 }

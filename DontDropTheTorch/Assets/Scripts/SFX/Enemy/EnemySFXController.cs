@@ -12,6 +12,11 @@ public class EnemySFXController : NetworkBehaviour
     [SerializeField] AudioClip sfx_walk;
     [SerializeField] AudioClip sfx_attack;
 
+    public void SetVolumeValue(float value = 0.01f)
+    {
+        sfx.volume = value;
+    }
+
     public void SpawnSFX()
     {
         sfx.clip = sfx_spawn;

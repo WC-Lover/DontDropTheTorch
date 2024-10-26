@@ -10,7 +10,7 @@ public class HealthSystem : NetworkBehaviour
     private HealthAttributes attributes;
     [SerializeField] private Image healthBarImage;
     private float health;
-    private float stress;
+    public float stress;
     public float checkRadius = 15.0f;
     private Rigidbody2D rigidBody;
     private MovementSystem movementSystem;
@@ -51,9 +51,7 @@ public class HealthSystem : NetworkBehaviour
 
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, enemyLayerMask, enemyLayerMask);
 
-        foreach (Collider2D collider in colliders) stress += 0.5f * Time.deltaTime;
-
-
+        stress += 0.5f * colliders.Length * Time.deltaTime;
     }
 
     public bool TakeDamage(float damage, Vector3 direction, float pushStrengthMultiplier)
