@@ -104,7 +104,7 @@ public class TestUIManager : MonoBehaviour
         GUILayout.BeginArea(new Rect(x, y, width, height));
 
         if (GUILayout.Button("Damage")) PlayerAttributesSettings.Damage = float.Parse(damage.text);
-        if (GUILayout.Button("RoundAmmo")) PlayerAttributesSettings.RoundAmmo = int.Parse(roundAmmo.text);
+        if (GUILayout.Button("RoundAmmo")) PlayerAttributesSettings.ClipCapacity = int.Parse(roundAmmo.text);
         if (GUILayout.Button("ProjectilesAmount")) PlayerAttributesSettings.ProjectileAmount = int.Parse(projectileAmount.text);
         if (GUILayout.Button("ProjectilesAngle")) PlayerAttributesSettings.ProjectileSpreadAngle = int.Parse(projectileSpreadAngle.text);
         if (GUILayout.Button("Penetration")) PlayerAttributesSettings.Penetration = int.Parse(penetration.text);

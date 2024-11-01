@@ -18,6 +18,8 @@ public class TradingSystem : NetworkBehaviour
 
     public static TradingSystem Instance;
     public int NotPickedUpCoins;
+    public int UnusedTradingPoints;
+    public int VaweCounter;
 
     HealthSystem healthSystem;
 
@@ -56,6 +58,8 @@ public class TradingSystem : NetworkBehaviour
     private float staminaRegenPercent;
     private float moveSpeedPercent;
 
+    private Dictionary<string, float> updatedAttributes;
+
     public void SetAttributes(PlayerAttributes playerAttributes)
     {
         this.playerAttributes = playerAttributes;
@@ -81,7 +85,10 @@ public class TradingSystem : NetworkBehaviour
         healthSystem = GetComponent<HealthSystem>();
         playersAlive = 1;
         NotPickedUpCoins = 0;
+        UnusedTradingPoints = 0;
+        VaweCounter = 0;
         tradingPoints.OnValueChanged += OnTradingPointsChangeValue;
+        updatedAttributes = new();
     }
 
     private void OnTradingPointsChangeValue(int previousValue, int newValue)
@@ -143,6 +150,7 @@ public class TradingSystem : NetworkBehaviour
             {
                 ReviveDeadPlayers();
                 SplitNotPickedUpCoins();
+                UpdateEnemies();
                 StartTrading();
                 StartTradingRpc();
             }
@@ -165,9 +173,7 @@ public class TradingSystem : NetworkBehaviour
     private void SplitNotPickedUpCoins()
     {
         if (NotPickedUpCoins == 0) return;
-        Debug.Log("tradingPoints.Value -> " + tradingPoints.Value);
-        Debug.Log("NotPickedUpCoins -> " + NotPickedUpCoins);
-        Debug.Log("playersAlive -> " + playersAlive);
+
         int amountPerPlayer = NotPickedUpCoins / playersAlive;
         tradingPoints.Value += amountPerPlayer;
         foreach (Transform trans in otherPlayers)
@@ -194,7 +200,61 @@ public class TradingSystem : NetworkBehaviour
         EnemySpawnSystem.Instance.despawnAllEnemies = false;
         EnemySpawnSystem.Instance.disableEnemySpawn = false;
         GetComponentInChildren<WeaponSystem>().enabled = true;
-        if (IsServer) traderNetworkObject.Despawn();
+        if (IsServer)
+        {
+            UnusedTradingPoints = 0;
+            VaweCounter++;
+
+            otherPlayers.Add(transform);
+            foreach (Transform player in otherPlayers)
+            {
+                UnusedTradingPoints += player.GetComponent<TradingSystem>().tradingPoints.Value;
+            }
+            otherPlayers.Remove(transform);
+
+            traderNetworkObject.Despawn();
+
+        }
+    }
+
+        private void UpdateEnemies()
+    {
+        int points = NotPickedUpCoins - UnusedTradingPoints;
+
+        otherPlayers.Add(transform);
+        foreach (Transform player in otherPlayers)
+        {
+            points += player.GetComponent<TradingSystem>().tradingPoints.Value;
+        }
+        otherPlayers.Remove(transform);
+
+        int attributesAmount = 6;
+        int multiplier = points / attributesAmount;
+
+        if (multiplier < 1) multiplier = 1;
+
+        // formula for percentage of update per vawe
+        float percentage = 1 + (0.05f * multiplier * VaweCounter * 3 / 4);
+        Debug.Log($"percentage -> {percentage}");
+        EnemySpawnSystem.Instance.enemyAttributes.Speed *= percentage;
+        EnemySpawnSystem.Instance.enemyAttributes.Damage *= percentage;
+        EnemySpawnSystem.Instance.enemyAttributes.Health *= percentage;
+        //EnemySpawnSystem.Instance.enemyAttributes.AttackRange *= percentage;
+        EnemySpawnSystem.Instance.enemyAttributes.LeapRange *= percentage;
+        EnemySpawnSystem.Instance.enemyAttributes.Defence *= percentage;
+        EnemySpawnSystem.Instance.enemyAttributes.AttackCooldown *= 2 - percentage;
+        EnemySpawnSystem.Instance.enemyAttributes.AttackPushMultiplier *= percentage;
+        //Debug.Log($"Speed -> {EnemySpawnSystem.Instance.enemyAttributes.Speed}");
+        //Debug.Log($"Damage -> {EnemySpawnSystem.Instance.enemyAttributes.Damage}");
+        //Debug.Log($"Health -> {EnemySpawnSystem.Instance.enemyAttributes.Health}");
+        //Debug.Log($"AttackRange -> {EnemySpawnSystem.Instance.enemyAttributes.AttackRange}");
+        //Debug.Log($"LeapRange -> {EnemySpawnSystem.Instance.enemyAttributes.LeapRange}");
+        //Debug.Log($"Defence -> {EnemySpawnSystem.Instance.enemyAttributes.Defence}");
+        //Debug.Log($"AttackCooldown -> {EnemySpawnSystem.Instance.enemyAttributes.AttackCooldown}");
+        //Debug.Log($"AttackPushMultiplier -> {EnemySpawnSystem.Instance.enemyAttributes.AttackPushMultiplier}");
+
+        EnemySpawnSystem.Instance.enemyPerPlayer++;
+        //Debug.Log($"enemyPerPlayer -> {EnemySpawnSystem.Instance.enemyPerPlayer}");
     }
 
     [Rpc(SendTo.NotServer)]
@@ -213,13 +273,13 @@ public class TradingSystem : NetworkBehaviour
 
         #region Damage
 
-        Instance.dmgPercent = Random.Range(10, 20) / 100f;
-        Instance.projectileAngleSpreadPercent = Random.Range(10, 20) / 100f;
-        Instance.rangePercent = Random.Range(10, 20) / 100f;
-        Instance.critPercent = Random.Range(10, 20) / 100f;
-        Instance.critChancePercent = Random.Range(10, 20) / 100f;
-        Instance.fireRatePercent = Random.Range(10, 20) / 100f;
-        Instance.reloadTimePercent = Random.Range(10, 20) / 100f;
+        Instance.dmgPercent = Random.Range(5, 10) / 100f;
+        Instance.projectileAngleSpreadPercent = Random.Range(2, 7) / 100f;
+        Instance.rangePercent = Random.Range(5, 10) / 100f;
+        Instance.critPercent = Random.Range(5, 10) / 100f;
+        Instance.critChancePercent = Random.Range(5, 10) / 100f;
+        Instance.fireRatePercent = Random.Range(5, 10) / 100f;
+        Instance.reloadTimePercent = Random.Range(5, 10) / 100f;
 
         #endregion
 
@@ -227,6 +287,12 @@ public class TradingSystem : NetworkBehaviour
 
         Instance.healthPercent = Random.Range(2, 5) / 100f;
         Instance.regenPercent = Random.Range(2, 5) / 100f;
+
+        #endregion
+
+        #region Movement
+
+        Instance.moveSpeedPercent = Random.Range(2, 6) / 100f;
 
         #endregion
     }
@@ -304,7 +370,7 @@ public class TradingSystem : NetworkBehaviour
 
     void OnGUI()
     {
-        if (IsOwner && isTrading) //  && tradingPoints > 0
+        if (IsOwner && isTrading && tradingPoints.Value > 0) //  && tradingPoints > 0
         {
 
             #region Weapon
@@ -316,7 +382,8 @@ public class TradingSystem : NetworkBehaviour
             if (GUILayout.Button($"Damage + {dmgPercent}%")) // Uncommon
             {
                 playerAttributes.WeaponAttributes.Damage *= 1 + dmgPercent;
-                dmgPercent = Random.Range(10, 20) / 100f;
+                dmgPercent = Random.Range(5, 10) / 100f;
+                updatedAttributes["Damage"] = playerAttributes.WeaponAttributes.Damage;
                 ChangeTradingPoints(-1);
             }
 
@@ -326,10 +393,16 @@ public class TradingSystem : NetworkBehaviour
                 ChangeTradingPoints(-1);
             }
 
-            if (GUILayout.Button($"Projectile Angle - {projectileAngleSpreadPercent}%")) // Common
+            if (GUILayout.Button($"Clip capacity + 1")) // Uncommon
             {
-                playerAttributes.WeaponAttributes.ProjectileSpreadAngle *= 1 - projectileAngleSpreadPercent;
-                projectileAngleSpreadPercent = Random.Range(10, 20) / 100f;
+                playerAttributes.WeaponAttributes.ClipCapacity++;
+                ChangeTradingPoints(-1);
+            }
+
+            if (GUILayout.Button($"Projectile Angle + {projectileAngleSpreadPercent}%")) // Common
+            {
+                playerAttributes.WeaponAttributes.ProjectileSpreadAngle *= 1 + projectileAngleSpreadPercent;
+                projectileAngleSpreadPercent = Random.Range(5, 10) / 100f;
                 ChangeTradingPoints(-1);
             }
 
@@ -342,35 +415,35 @@ public class TradingSystem : NetworkBehaviour
             if (GUILayout.Button($"Range + {rangePercent}%")) // Common
             {
                 playerAttributes.WeaponAttributes.Range *= 1 + rangePercent;
-                rangePercent = Random.Range(10, 20) / 100f;
+                rangePercent = Random.Range(5, 10) / 100f;
                 ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Crit + {critPercent}%")) // Rare
             {
                 playerAttributes.WeaponAttributes.Crit *= 1 + critPercent;
-                critPercent = Random.Range(10, 20) / 100f;
+                critPercent = Random.Range(5, 10) / 100f;
                 ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Crit chance + {critChancePercent}%")) // Rare
             {
                 playerAttributes.WeaponAttributes.CritChance *= 1 + critChancePercent;
-                critChancePercent = Random.Range(10, 20) / 100f;
+                critChancePercent = Random.Range(5, 10) / 100f;
                 ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Fire rate + {fireRatePercent}%")) // Uncommon
             {
                 playerAttributes.WeaponAttributes.FireRate *= 1 - fireRatePercent;
-                fireRatePercent = Random.Range(10, 20) / 100f;
+                fireRatePercent = Random.Range(5, 10) / 100f;
                 ChangeTradingPoints(-1);
             }
 
             if (GUILayout.Button($"Reload time - {reloadTimePercent}%")) // Uncommon
             {
                 playerAttributes.WeaponAttributes.ReloadTime *= 1 - reloadTimePercent;
-                reloadTimePercent = Random.Range(10, 20) / 100f;
+                reloadTimePercent = Random.Range(5, 10) / 100f;
                 ChangeTradingPoints(-1);
             }
 
@@ -448,7 +521,7 @@ public class TradingSystem : NetworkBehaviour
             if (GUILayout.Button($"Speed + {moveSpeedPercent}%")) // Unreal
             {
                 playerAttributes.MovementAttributes.MoveSpeed *= 1 + moveSpeedPercent;
-                moveSpeedPercent = Random.Range(1, 4) / 100f;
+                moveSpeedPercent = Random.Range(2, 6) / 100f;
                 ChangeTradingPoints(-1);
             }
 

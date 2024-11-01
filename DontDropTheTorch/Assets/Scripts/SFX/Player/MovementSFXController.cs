@@ -15,7 +15,6 @@ public class MovementSFXController : NetworkBehaviour
     public void SetVolumeValue(float value = 0.01f)
     {
         sfx.volume = value;
-        Debug.Log($"Movement SFX volume -> {sfx.volume}");
     }
 
     public void DashSFX()

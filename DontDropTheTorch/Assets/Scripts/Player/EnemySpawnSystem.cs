@@ -8,7 +8,9 @@ public class EnemySpawnSystem : NetworkBehaviour
 {
     public static EnemySpawnSystem Instance;
 
-    private EnemySpawnAttributes enemySpawnAttributes;
+    public EnemySpawnAttributes enemySpawnAttributes;
+    public EnemyAttributes enemyAttributes;
+    public int enemyPerPlayer;
     // Variables to spawn emeies
     // What?
     [SerializeField] private Transform prefabToSpawn;
@@ -41,13 +43,14 @@ public class EnemySpawnSystem : NetworkBehaviour
         Instance = this;
 
         otherPlayers = LobbyManager.LobbyPlayersTransforms;
-
+        enemyAttributes = new EnemyAttributes();
         enemyControllers = new List<EnemyController>();
         // currently 4 -> distance from player to corner where spawn is sqrt(4^2 + 4^2) = 5.65(roughly)
         var playerLight = GetComponentInChildren<Light2D>();
         playerLightBeamDistance = playerLight.pointLightOuterRadius;
         playerLightBeamAngle = playerLight.pointLightOuterAngle;
         playerLightDirectionAngle = transform.eulerAngles.z;
+        enemyPerPlayer = 1;
     }
 
     private void Update()
@@ -192,22 +195,31 @@ public class EnemySpawnSystem : NetworkBehaviour
         #region Spawn Enemies in free zones
 
         //var tradingZoneStartX = TradingController.Instance.TradingZoneStartX;
-        for (int i = 0; i < freeZoneList.Count/4; i++) // TODO: Remove /4, done to spawn only 1 zombie per player
+        //Debug.Log();
+        int localEnemyCounter = 0;
+
+        while (localEnemyCounter < enemyPerPlayer)
         {
-            Vector2 freeZone = freeZoneList[i];
-            Vector3 freeZoneVector3 = new Vector3(freeZone.x, freeZone.y, 0);
-            int distance = (int)Math.Abs(freeZone.x); // length = width
-            for (int j = 0; j < distance / 4; j++) // distance / 4 for now so only 1 enemie is spawned in each corner
+            for (int i = 0; i < freeZoneList.Count; i++) // TODO: Remove /4, done to spawn only 1 zombie per player
             {
+                Vector2 freeZone = freeZoneList[i];
+                Vector3 freeZoneVector3 = new Vector3(freeZone.x, freeZone.y, 0);
+                int distance = (int)Math.Abs(freeZone.x); // length = width
+                //for (int j = 0; j < distance / 4; j++) // distance / 4 for now so only 1 enemy is spawned in each corner
+                //{
+                //if (enemyPerPlayer < i + 1) break;
+
                 Vector2 enemySpawnVector = localPlayerPosition + freeZoneVector3;
 
                 // Spawn enemy in available area, starting from farest point, not to spawn infront of the player if it is moving!
                 //if (tradingZoneStartX > enemySpawnVector.x)
                 if (IsServer) SpawnEnemy(enemySpawnVector);
                 else SpawnEnemyRpc(enemySpawnVector);
+                //}
+                localEnemyCounter++;
+                if (localEnemyCounter > enemyPerPlayer) return;
             }
         }
-
         #endregion
     }
 

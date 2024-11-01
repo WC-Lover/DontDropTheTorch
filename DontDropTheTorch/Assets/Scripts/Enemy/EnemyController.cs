@@ -18,6 +18,7 @@ public class EnemyController : NetworkBehaviour
     private EnemyAttributes attributes;
 
     [SerializeField] private Image healthBarImage;
+    [SerializeField] private Transform enemyRay;
     private float health;
     private float speed;
     private float attackCooldown;
@@ -43,6 +44,9 @@ public class EnemyController : NetworkBehaviour
     private bool damageDealt;
     private float damageDealtEffectTimer;
     private Color enemyDefaultColor;
+    private bool isLeap;
+    private float leapEffectTimer;
+    private float leapCooldown;
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -87,12 +91,13 @@ public class EnemyController : NetworkBehaviour
 
         players = new List<Transform>(LobbyManager.LobbyPlayersTransformsInludingLocal);
         
-        attributes = new EnemyAttributes();
+        attributes = EnemySpawnSystem.Instance.enemyAttributes;
 
         health = attributes.Health;
         if (IsServer) netHealth.Value = attributes.Health;
         speed = attributes.Speed;
         attackCooldown = attributes.AttackCooldown;
+        leapCooldown = attributes.LeapCooldown;
 
         nearestTargetCheckCooldownTime = 2f;
         nearestTargetCheckCooldown = 0f;
@@ -117,6 +122,18 @@ public class EnemyController : NetworkBehaviour
                 damageDealt = false;
                 enemySpriteRenderer.color = enemyDefaultColor;
             }
+        }
+
+        if (attackCooldown > 0) attackCooldown -= Time.deltaTime;
+
+        if (isLeap)
+        {
+            if (leapEffectTimer > 0)
+            {
+                leapEffectTimer -= Time.deltaTime;
+                return;
+            }
+            else isLeap = false;
         }
 
         //if (ChaseMode == 0)
@@ -157,25 +174,55 @@ public class EnemyController : NetworkBehaviour
 
         // if distance from enemy to player is shorter than leap distance -> charge directly into player.
 
-        if (Vector2.Distance(transform.position, nearestPlayerTransform.position) <= attributes.LeapRange)
+        var direction = nearestPlayerTransform.position - transform.position;
+
+        if (leapCooldown > 0) leapCooldown -= Time.deltaTime;
+        else if (Vector2.Distance(transform.position, nearestPlayerTransform.position) <= attributes.LeapRange)
         {
-            //MoveTowardsNearestPlayer();
+            Debug.Log("Leap");
+            leapCooldown = attributes.LeapCooldown;
+            Debug.DrawLine(transform.position, direction, Color.green);
+            LeapTowardsPlayer(direction);
+            return;
         }
 
-        // predict players' next position
+        if (Vector2.Distance(transform.position, nearestPlayerTransform.position) <= attributes.AttackRange)
+        {
+            Debug.Log("MoveTowards");
+            Debug.DrawLine(transform.position, direction, Color.white);
+            MoveTowardsNearestPlayer(direction);
+            return;
+        }
 
         var playerMoveDirection = PredictPlayerPosition();
+        direction = playerMoveDirection - transform.position;
+        Debug.DrawLine(transform.position, playerMoveDirection, Color.red);
 
-        var flank = AddFlank(playerMoveDirection);
+        RaycastHit2D hit = Physics2D.Raycast(enemyRay.position, (nearestPlayerTransform.position - enemyRay.position).normalized, attributes.AttackRange * 2);
+        
+        if (hit.collider != null && !hit.collider.TryGetComponent<PlayerController>(out var pc))
+        {
+            var flank = AddFlank(playerMoveDirection);
+            direction = flank - transform.position;
+            Debug.DrawLine(transform.position, flank, Color.black);
+        }
 
-        //Debug.DrawLine(transform.position, playerMoveDirection, Color.white);
-        //Debug.DrawLine(transform.position, flank, Color.black);
-
-        var direction = flank - transform.position;
-        if (attackCooldown > 0) attackCooldown -= Time.deltaTime;
 
         MoveTowardsNearestPlayer(direction);
 
+    }
+
+    private void LeapTowardsPlayer(Vector3 direction)
+    {
+        enemySFXController.LeapSFX();
+
+        var directionNormalized = direction.normalized;
+
+        rigidBody.velocity = directionNormalized * speed * attributes.LeapSpeedMultiplier;
+
+        leapEffectTimer = attributes.LeapEffectTime;
+
+        isLeap = true;
     }
 
     Vector3 PredictPlayerPosition()
@@ -237,10 +284,13 @@ public class EnemyController : NetworkBehaviour
     public void DealDamageToEnemy(float damage, Vector2 rayDirection)
     {
         //if (netHealth.Value - damage <= 0) TradingSystem.Instance.tradingPoints++;
-        enemyDefaultColor = enemySpriteRenderer.color;
-        enemySpriteRenderer.color = Color.white;
-        damageDealt = true;
-        damageDealtEffectTimer = 0.15f;
+        if (!damageDealt)
+        {
+            enemyDefaultColor = enemySpriteRenderer.color;
+            enemySpriteRenderer.color = Color.white;
+            damageDealt = true;
+            damageDealtEffectTimer = 0.15f;
+        }
         if (!IsServer) DealDamageToEnemyRpc(damage, rayDirection);
         else netHealth.Value -= damage;
     }

@@ -15,7 +15,6 @@ public class HeartBeatSFXController : NetworkBehaviour
     public void SetVolumeValue(float volume = 0.01f)
     {
         if (volume >= 0.01f) sfx.volume = volume;
-        Debug.Log($"sfx.volume heart -> {sfx.volume}");
     }
 
     public void HeartBeatSFX()

@@ -151,6 +151,10 @@ public class LobbyManager : MonoBehaviour
                     });
 
                     CurrentLobby = lobby;
+
+                    BackgroundSFXSystem.Instance.StopBackgroundSFX();
+                    BackgroundSFXSystem.Instance.StartInGameBackgroundRainSFX();
+                    BackgroundSFXSystem.Instance.CrowsSFX();
                 }
             }
             catch (LobbyServiceException e)

@@ -5,6 +5,8 @@ using Unity.Netcode;
 
 public class PlayerController : NetworkBehaviour
 {
+    // In instance create a List of PlayerControllers?
+    // Or use LobbyManager.LobbyPlayersTransformsInludingLocal when update enemies attributes after trader
     PlayerAttributes playerAttributes;
     HealthSystem healthSystem;
     MovementSystem movementSystem;

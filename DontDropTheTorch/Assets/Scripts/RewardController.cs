@@ -5,6 +5,7 @@ using Unity.Netcode;
 
 public class RewardController : NetworkBehaviour
 {
+    private int pointsAmount;
     private RewardSFXController rewardSFX;
     private float PickUpTimer;
 
@@ -20,7 +21,7 @@ public class RewardController : NetworkBehaviour
 
             if (!IsServer) return;
 
-            ts.ChangeTradingPoints(1);
+            ts.ChangeTradingPoints(pointsAmount);
 
             NetworkObject.Despawn();
         }
@@ -30,8 +31,8 @@ public class RewardController : NetworkBehaviour
     {
         rewardSFX = GetComponent<RewardSFXController>();
         rewardSFX.CoinDropSFX();
-
-        PickUpTimer = 1f;
+        if (IsServer) pointsAmount = TradingSystem.Instance.VaweCounter;
+        PickUpTimer = 10f;
     }
 
     public void Update()

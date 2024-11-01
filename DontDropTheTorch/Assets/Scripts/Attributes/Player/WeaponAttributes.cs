@@ -24,6 +24,6 @@ public class WeaponAttributes
         CritChance = PlayerAttributesSettings.CritChance;
         FireRate = PlayerAttributesSettings.FireRate;
         ReloadTime = PlayerAttributesSettings.ReloadTime;
-        ClipCapacity = PlayerAttributesSettings.RoundAmmo;
+        ClipCapacity = PlayerAttributesSettings.ClipCapacity;
     }
 }

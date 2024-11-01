@@ -8,7 +8,7 @@ public static class PlayerAttributesSettings
     #region Weapon
 
     public static float Damage { get; set; }
-    public static int RoundAmmo { get; set; }
+    public static int ClipCapacity { get; set; }
     public static int ProjectileAmount { get; set; }
     public static float ProjectileSpreadAngle { get; set; }
     public static int Penetration { get; set; }
@@ -61,7 +61,7 @@ public static class PlayerAttributesSettings
         {
             // Combat Attributes
             writer.WriteLine($"Damage={Damage}");
-            writer.WriteLine($"RoundAmmo={RoundAmmo}");
+            writer.WriteLine($"ClipCapacity={ClipCapacity}");
             writer.WriteLine($"ProjectileAmount={ProjectileAmount}");
             writer.WriteLine($"ProjectileSpreadAngle={ProjectileSpreadAngle}");
             writer.WriteLine($"Penetration={Penetration}");
@@ -100,7 +100,7 @@ public static class PlayerAttributesSettings
 
     public static void LoadSettings()
     {
-        string filePath = Path.Combine(Application.persistentDataPath, "123.txt");
+        string filePath = Path.Combine(Application.persistentDataPath, "mySettingsData.txt");
 
         if (File.Exists(filePath))
         {
@@ -139,8 +139,8 @@ public static class PlayerAttributesSettings
                         case "Damage":
                             Damage = floatValue;
                             break;
-                        case "RoundAmmo":
-                            RoundAmmo = (int)floatValue;
+                        case "ClipCapacity":
+                            ClipCapacity = (int)floatValue;
                             break;
                         case "ProjectileAmount":
                             ProjectileAmount = (int)floatValue;

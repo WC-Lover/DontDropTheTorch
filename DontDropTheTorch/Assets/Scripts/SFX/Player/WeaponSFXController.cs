@@ -15,7 +15,6 @@ public class WeaponSFXController : NetworkBehaviour
     public void SetVolumeValue(float value = 0.01f)
     {
         sfx.volume = value;
-        Debug.Log($"Weapon sfx volume -> {sfx.volume}");
     }
 
     public void EmptyAmmoShotSFX()

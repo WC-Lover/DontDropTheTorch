@@ -1,5 +1,5 @@
-Damage=2
-RoundAmmo=6
+Damage=35
+ClipCapacity=6
 ProjectileAmount=1
 ProjectileSpreadAngle=15
 Penetration=1
@@ -16,7 +16,7 @@ MoveSpeed=250
 BoostSpeedMultiplier=150
 BoostStaminaCost=150
 DashSpeedMultiplier=4
-DashStaminaCost=30
+DashStaminaCost=15
 DashCooldown=250
 DashDuration=15
 TraderSpawnTime=5

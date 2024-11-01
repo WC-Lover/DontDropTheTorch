@@ -49,7 +49,7 @@ public class HealthSystem : NetworkBehaviour
 
         // Add stress to player if enemy is near
 
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, enemyLayerMask, enemyLayerMask);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, checkRadius, enemyLayerMask);
 
         stress += 0.5f * colliders.Length * Time.deltaTime;
     }
@@ -96,7 +96,7 @@ public class HealthSystem : NetworkBehaviour
 
     private void PlayerIsDamaged(float damage, Vector2 direction, float pushStrengthMultiplier)
     {
-        //health -= damage;
+        health -= damage;
         healthBarImage.fillAmount = Mathf.Clamp(health / attributes.HealthAmount, 0, 1);
         if (IsOwner)
         {

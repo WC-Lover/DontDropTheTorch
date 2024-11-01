@@ -59,4 +59,9 @@ public class EnemySFXController : NetworkBehaviour
     {
         if (sfx.isPlaying) sfx.Stop();
     }
+
+    internal void LeapSFX()
+    {
+        // play leap sfx
+    }
 }

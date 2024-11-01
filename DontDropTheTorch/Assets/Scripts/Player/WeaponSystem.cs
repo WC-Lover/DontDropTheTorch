@@ -22,12 +22,17 @@ public class WeaponSystem : NetworkBehaviour
     [SerializeField] private Image reloadImage;
 
     [SerializeField] Transform shotTrailPistol;
+    Rigidbody2D playerPrefab;
+    [SerializeField] GameObject meleWeapon;
+    float angleZBeforeMeleAttack;
 
     private Camera mainCam;
     private float reloadTime;
 
     [SerializeField] private ScreenShakeProfile screenShakeProfile;
     private CinemachineImpulseSource impulseSource;
+    private bool meleAttackPerforming;
+    private float meleAttackDuration;
 
     public override void OnNetworkSpawn()
     {
@@ -35,6 +40,7 @@ public class WeaponSystem : NetworkBehaviour
         weaponSFXController.SetVolumeValue();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
+        playerPrefab = GetComponentInParent<Rigidbody2D>();
     }
 
     public void SetAttributes(PlayerAttributes playerAttributes)
@@ -57,6 +63,20 @@ public class WeaponSystem : NetworkBehaviour
             return;
         }
 
+        if (meleAttackPerforming)
+        {
+            float rotationPercentage = Math.Clamp((0.15f - meleAttackDuration) / 0.15f, 0, 1);
+            Debug.Log(rotationPercentage);
+            playerPrefab.rotation = angleZBeforeMeleAttack + (rotationPercentage * 90);
+            if (meleAttackDuration > 0) meleAttackDuration -= Time.deltaTime;
+            else
+            {
+                playerPrefab.rotation = angleZBeforeMeleAttack;
+                meleAttackPerforming = false;
+                meleWeapon.SetActive(false);
+            }
+        }
+
         if (!Cursor.visible) Cursor.visible = true;
 
         if (fireAlready)
@@ -75,15 +95,30 @@ public class WeaponSystem : NetworkBehaviour
             return;
         }
 
-        if (Input.GetKey(KeyCode.Mouse0) && !fireAlready && clipCapacity > 0)
+        if (Input.GetKey(KeyCode.Mouse0) && !fireAlready)
         {
-            Fire();
+            if (clipCapacity > 0) Fire();
+            else Reload();
         }
 
         if (Input.GetKey(KeyCode.R) && clipCapacity < weaponAttributes.ClipCapacity)
         {
             Reload();
         }
+
+        if (Input.GetKey(KeyCode.Q))
+        {
+            MeleAttack();
+        }
+    }
+
+    private void MeleAttack()
+    {
+        meleAttackPerforming = true;
+        meleAttackDuration = 0.15f;
+
+        angleZBeforeMeleAttack = playerPrefab.rotation;
+        meleWeapon.SetActive(true);
     }
 
     private void ReloadingProcess()
