@@ -106,7 +106,7 @@ public class MovementSystem : NetworkBehaviour
 
         if (rigidBody.velocity != new Vector2(0, 0)) movementSFXController.RunSFX();
         else movementSFXController.StopSFX();
-        
+
 
         #region Rotation
 
@@ -189,7 +189,15 @@ public class MovementSystem : NetworkBehaviour
     private bool HookRayCast()
     {
         RaycastHit2D hit = Physics2D.Raycast(weaponSystem.transform.position, mousePosition);
-        if (hit.collider != null) return true;
+        if (hit.collider != null)
+        {
+            if (hit.collider.TryGetComponent<EnemyController>(out var ec))
+            {
+                if (IsServer) ec.Stunned(1.5f);
+                else ec.StunnedRpc(1.5f);
+            }
+            return true;
+        }
         return false;
     }
 }

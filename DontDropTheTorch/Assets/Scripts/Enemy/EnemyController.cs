@@ -47,17 +47,20 @@ public class EnemyController : NetworkBehaviour
     private bool isLeap;
     private float leapEffectTimer;
     private float leapCooldown;
+    private float stunDuration;
+
+    public bool IsStunned { get; private set; }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!IsServer) return;
+        if (!IsServer || IsStunned) return;
 
         TryAttackNearbyCollider(collision);
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (!IsServer) return;
+        if (!IsServer || IsStunned) return;
 
         TryAttackNearbyCollider(collision);
     }
@@ -124,6 +127,12 @@ public class EnemyController : NetworkBehaviour
             }
         }
 
+        if (IsStunned)
+        {
+            if (stunDuration > 0) stunDuration -= Time.deltaTime;
+            else IsStunned = false;
+        }
+
         if (attackCooldown > 0) attackCooldown -= Time.deltaTime;
 
         if (isLeap)
@@ -179,7 +188,6 @@ public class EnemyController : NetworkBehaviour
         if (leapCooldown > 0) leapCooldown -= Time.deltaTime;
         else if (Vector2.Distance(transform.position, nearestPlayerTransform.position) <= attributes.LeapRange)
         {
-            Debug.Log("Leap");
             leapCooldown = attributes.LeapCooldown;
             Debug.DrawLine(transform.position, direction, Color.green);
             LeapTowardsPlayer(direction);
@@ -188,7 +196,6 @@ public class EnemyController : NetworkBehaviour
 
         if (Vector2.Distance(transform.position, nearestPlayerTransform.position) <= attributes.AttackRange)
         {
-            Debug.Log("MoveTowards");
             Debug.DrawLine(transform.position, direction, Color.white);
             MoveTowardsNearestPlayer(direction);
             return;
@@ -210,6 +217,18 @@ public class EnemyController : NetworkBehaviour
 
         MoveTowardsNearestPlayer(direction);
 
+    }
+    [Rpc(SendTo.Server)]
+    internal void StunnedRpc(float duration)
+    {
+        Stunned(duration);
+    }
+
+    public void Stunned(float duration)
+    {
+        if (!IsServer) return;
+        this.stunDuration = duration;
+        IsStunned = true;
     }
 
     private void LeapTowardsPlayer(Vector3 direction)

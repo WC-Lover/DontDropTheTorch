@@ -8,7 +8,7 @@ public class MeleWeaponController : MonoBehaviour
     {
         if (collision.collider != null && collision.collider.TryGetComponent<EnemyController>(out var ec))
         {
-            ec.DealDamageToEnemy(1000, new Vector2(0, 0));
+            ec.DealDamageToEnemy(90, new Vector2(0, 0));
         }
 
     }

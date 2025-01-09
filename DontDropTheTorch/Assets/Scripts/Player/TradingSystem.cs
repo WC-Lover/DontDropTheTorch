@@ -235,7 +235,7 @@ public class TradingSystem : NetworkBehaviour
 
         // formula for percentage of update per vawe
         float percentage = 1 + (0.05f * multiplier * VaweCounter * 3 / 4);
-        Debug.Log($"percentage -> {percentage}");
+        //Debug.Log($"percentage -> {percentage}");
         EnemySpawnSystem.Instance.enemyAttributes.Speed *= percentage;
         EnemySpawnSystem.Instance.enemyAttributes.Damage *= percentage;
         EnemySpawnSystem.Instance.enemyAttributes.Health *= percentage;
